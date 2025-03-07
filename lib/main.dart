@@ -1,22 +1,21 @@
 import 'dart:async';
-
 import 'package:disco_party/firebase_options.dart';
 import 'package:disco_party/widgets/landing_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
-  // Ensure Flutter is initialized before Firebase
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: 'variable.env');
 
-  // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
   FirebaseDatabase.instance.databaseURL =
-      'https://disco-party-2592c-default-rtdb.europe-west1.firebasedatabase.app/';
+      dotenv.env['FIREBASE_REALTIME_DATABASE_URL'];
 
   runApp(const MyApp());
 }
@@ -92,7 +91,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _initializeCounter() async {
     final snapshot = await _counterRef.get();
     if (!snapshot.exists) {
-      // If counter doesn't exist in database, set it to 0
       await _counterRef.set(0);
     }
   }
