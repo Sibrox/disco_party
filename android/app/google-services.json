@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "261781494",
+    "project_id": "disco-party-8a6a0",
+    "storage_bucket": "disco-party-8a6a0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:261781494:android:6899e907bc0f3ded1779d7",
+        "android_client_info": {
+          "package_name": "com.example.disco_party"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPrsKX7AskF2deIHF8YKCgiHDKIdavvlM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
