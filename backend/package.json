@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "express": "^4.21.2",
+    "request": "^2.88.2"
+  },
+  "name": "disco_party",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
