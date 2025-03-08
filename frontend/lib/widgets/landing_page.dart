@@ -1,4 +1,5 @@
 import 'package:disco_party/logics/landing_page.dart';
+import 'package:disco_party/models/user_infos.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'dart:html';
@@ -15,7 +16,7 @@ class _LandingPageState extends State<LandingPage> {
   late String url;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
-  final _discoPartRef = FirebaseDatabase.instance.ref('disco_party');
+  final _discoPartRef = FirebaseDatabase.instance.ref('disco_party/users');
   final LandingPageLogic logic = LandingPageLogic();
 
   @override
@@ -97,7 +98,7 @@ class _LandingPageState extends State<LandingPage> {
                             queryParams?['id'] != null) {
                           final String name = _nameController.text;
 
-                          logic.onClickEnterName(name, queryParams!['id']);
+                          logic.getOrCreateUserInfos(name, queryParams!['id']);
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -114,6 +115,11 @@ class _LandingPageState extends State<LandingPage> {
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
+                    ElevatedButton(
+                        onPressed: () {
+                          logic.addSongToQueue(null);
+                        },
+                        child: const Text("Add song to queue")),
                   ],
                 ),
               ),
