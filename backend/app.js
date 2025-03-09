@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import fs from 'fs';
 import querystring from 'querystring';
 import request from 'request';
@@ -10,6 +11,7 @@ var client_secret = '01c3fd8034d64eb6bcc3aae7e1588620';
 var redirect_uri = 'http://localhost:8080/callback';
 
 var app = express();
+app.use(cors());
 
 app.get('/login', function(req, res) {
 
@@ -95,9 +97,7 @@ app.get('/callback', function(req, res)  {
 });
 
 app.get('/player', async function(req, res) {
-
   var song = await new SpotifyApi().currentPlayback()
-
   return res.json(JSON.parse(song.toJsonString()));
 });
 
