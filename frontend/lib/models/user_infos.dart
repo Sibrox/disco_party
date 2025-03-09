@@ -4,7 +4,7 @@ class Song {
   String image;
   String name;
   String uri;
-  List<int> votes;
+  Map<dynamic,dynamic> votes;
   String userID;
   String get id => uri.split(':')[2];
 
@@ -43,14 +43,14 @@ class UserInfos {
   int credits;
   String name;
   String? team;
-  List<Song> songs;
+  Map<dynamic, dynamic> songs;
 
   UserInfos({
     required this.id,
     required this.credits,
     required this.name,
     this.team,
-    this.songs = const [],
+    this.songs = const {},
   });
 
   toJson() {
@@ -59,32 +59,18 @@ class UserInfos {
       'credits': credits,
       'name': name,
       'team': team,
-      'songs': songs.map((song) => song.toJson()).toList(),
+      'songs': songs,
     };
   }
 
   factory UserInfos.fromJson(Map<dynamic, dynamic> json) {
-    List<Song> songsList = [];
-    if (json.containsKey('songs')) {
-      final songsMap = json['songs'] as Map;
-      songsList = songsMap.values.map((song) {
-        return Song(
-          userID: song['userID'],
-          album: song['album'],
-          artist: song['artist'],
-          image: song['image'],
-          name: song['name'],
-          uri: song['uri'],
-          votes: song['votes']?.cast<int>() ?? [],
-        );
-      }).toList();
-    }
+ 
     return UserInfos(
       id: json['id'],
       credits: json['credits'],
       name: json['name'],
       team: json['team'],
-      songs: songsList,
+      songs: json['songs'] ?? {},
     );
   }
 }
