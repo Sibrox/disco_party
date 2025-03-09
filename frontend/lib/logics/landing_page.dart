@@ -21,17 +21,20 @@ class LandingPageLogic {
     if (currentUser!.credits <= 0) {
       return;
     }
+
     //TODO: api for get the song
-    //TODO: check credits if user has enough
 
     Song mockUpSong = Song(
+      userID: 'caxscx23',
       album: 'album',
       artist: 'artist',
       image: 'image',
       name: 'name',
-      uri: 'spotify:track:1',
+      uri: 'spotify:track:23xcxs',
       votes: [],
     );
+
+    print(mockUpSong.toJson());
 
     final DatabaseReference userSongsRef =
         _discoPartRef.child(currentUser!.id).child('songs');
@@ -44,6 +47,7 @@ class LandingPageLogic {
         return;
       }
     }
+    //TODO: there is a bug when i add a new song and there are other songs. The previous id are change to 0 1 ... n
 
     _addOrRemoveCredits(value: -1, id: currentUser!.id);
     userSongsRef.child(mockUpSong.id).set(mockUpSong.toJson());
