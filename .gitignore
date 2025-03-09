@@ -43,3 +43,7 @@ app.*.map.json
 */android/app/debug
 */android/app/profile
 */android/app/release
+
+backend/node_modules
+backend/token.txt
+backend/refresh.txt
