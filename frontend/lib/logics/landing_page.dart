@@ -25,16 +25,14 @@ class LandingPageLogic {
     //TODO: api for get the song
 
     Song mockUpSong = Song(
-      userID: 'caxscx23',
+      userID: '2324',
       album: 'album',
       artist: 'artist',
       image: 'image',
       name: 'name',
-      uri: 'spotify:track:23xcxs',
-      votes: [],
+      uri: 'spotify:track:23xcxs22',
+      votes: {},
     );
-
-    print(mockUpSong.toJson());
 
     final DatabaseReference userSongsRef =
         _discoPartRef.child(currentUser!.id).child('songs');
@@ -47,23 +45,29 @@ class LandingPageLogic {
         return;
       }
     }
-    //TODO: there is a bug when i add a new song and there are other songs. The previous id are change to 0 1 ... n
 
     _addOrRemoveCredits(value: -1, id: currentUser!.id);
     userSongsRef.child(mockUpSong.id).set(mockUpSong.toJson());
   }
 
-  voteSong(Song song, int value) {
-    // final DatabaseReference userSongsRef = FirebaseDatabase.instance
-    //     .ref('disco_party/users/${currentUser!.id}/songs/${song.id}');
+  voteSong(Song song, int value) async {
+    if (song.userID == currentUser!.id) {
+      return;
+    }
 
-    // if (value == 1) {
-    //   song.votes.add(1);
-    // } else {
-    //   song.votes.remove(1);
-    // }
+    final DatabaseReference userSongsRef = FirebaseDatabase.instance
+        .ref('disco_party/users/${song.userID}/songs/${song.id}/votes');
 
-    // userSongsRef.set(song.toJson());
+    DataSnapshot snapshot = await userSongsRef.get();
+
+    if (snapshot.value != null) {
+      Map votes = snapshot.value as Map;
+      if (votes.containsKey(currentUser!.id)) {
+        return;
+      }
+    }
+
+    userSongsRef.child(currentUser!.id).set(value);
   }
 
   void _addOrRemoveCredits({required int value, required String id}) async {
