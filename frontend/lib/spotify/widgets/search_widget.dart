@@ -1,37 +1,51 @@
-import 'package:disco_party/spotify/spotify_api.dart';
-import 'package:disco_party/spotify/spotify_song.dart';
 import 'package:flutter/material.dart';
+import 'package:disco_party/spotify/spotify_song.dart';
+import 'package:disco_party/spotify/spotify_api.dart';
 
 class SearchWidget extends StatefulWidget {
-  const SearchWidget({
-    Key? key,
-  }) : super(key: key);
+  const SearchWidget({super.key});
 
   @override
-  _SearchWidgetState createState() => _SearchWidgetState();
+  State<SearchWidget> createState() => _SearchWidgetState();
 }
 
 class _SearchWidgetState extends State<SearchWidget> {
-  final TextEditingController _controller = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   List<SpotifySong> _searchResults = [];
   bool _isLoading = false;
 
-  Future<void> _searchSong(String query) async {
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _performSearch(String query) async {
+    if (query.trim().isEmpty) {
+      setState(() {
+        _searchResults = [];
+      });
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
 
     try {
-      var results = await SpotifyApi.searchSongByTitle(query);
+      final results = await SpotifyApi.searchSongByTitle(query);
+
       setState(() {
         _searchResults = results;
+        _isLoading = false;
       });
     } catch (e) {
-      print('Error searching songs: $e');
-    } finally {
       setState(() {
         _isLoading = false;
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Search failed: ${e.toString()}')),
+      );
     }
   }
 
@@ -40,55 +54,72 @@ class _SearchWidgetState extends State<SearchWidget> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(16.0),
           child: TextField(
-            controller: _controller,
+            controller: _searchController,
             decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Search for a song',
+              hintText: 'Search for songs...',
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30.0),
+              ),
               suffixIcon: IconButton(
-                icon: Icon(Icons.search),
+                icon: const Icon(Icons.clear),
                 onPressed: () {
-                  _searchSong(_controller.text);
+                  _searchController.clear();
+                  setState(() {
+                    _searchResults = [];
+                  });
                 },
               ),
             ),
-            onSubmitted: (value) {
-              _searchSong(value);
-            },
+            onSubmitted: _performSearch,
+            textInputAction: TextInputAction.search,
           ),
         ),
-        _isLoading
-            ? const CircularProgressIndicator()
-            : Expanded(
-                child: ListView.builder(
-                  itemCount: _searchResults.length,
-                  itemBuilder: (context, index) {
-                    var song = _searchResults[index];
-                    return ListTile(
-                      leading: SizedBox(
-                        height: 250,
-                        child: Image.network(song.image),
-                      ),
-                      title: Text(song.name),
-                      subtitle: Text(song.artist),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.add),
-                            onPressed: () async {
-                              SpotifyApi.addSongToQueue(
-                                song.uri,
-                              );
-                            },
-                          ),
-                        ],
-                      ),
+        if (_isLoading)
+          const Center(child: CircularProgressIndicator())
+        else if (_searchResults.isNotEmpty)
+          Expanded(
+            child: ListView.builder(
+              itemCount: _searchResults.length,
+              itemBuilder: (context, index) {
+                final song = _searchResults[index];
+                return ListTile(
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(4.0),
+                    child: Image.network(
+                      song.image,
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 50,
+                          height: 50,
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.music_note, size: 25),
+                        );
+                      },
+                    ),
+                  ),
+                  title: Text(song.name),
+                  subtitle: Text('${song.artist} • ${song.album}'),
+                  onTap: () {
+                    SpotifyApi.addSongToQueue(song.uri);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Added ${song.name} to queue')),
                     );
+
+                    setState(() {
+                      _searchResults = [];
+                      _searchController.clear();
+                    });
                   },
-                ),
-              ),
+                );
+              },
+            ),
+          ),
       ],
     );
   }
