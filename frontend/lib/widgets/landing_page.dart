@@ -1,5 +1,6 @@
 import 'package:disco_party/logics/landing_page.dart';
 import 'package:disco_party/models/user_infos.dart';
+import 'package:disco_party/widgets/player.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'dart:html';
