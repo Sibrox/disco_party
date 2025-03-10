@@ -21,16 +21,17 @@ class LandingPageLogic {
     if (currentUser!.credits <= 0) {
       return;
     }
+
     //TODO: api for get the song
-    //TODO: check credits if user has enough
 
     Song mockUpSong = Song(
+      userID: '2324',
       album: 'album',
       artist: 'artist',
       image: 'image',
       name: 'name',
-      uri: 'spotify:track:1',
-      votes: [],
+      uri: 'spotify:track:23xcxs22',
+      votes: {},
     );
 
     final DatabaseReference userSongsRef =
@@ -49,17 +50,24 @@ class LandingPageLogic {
     userSongsRef.child(mockUpSong.id).set(mockUpSong.toJson());
   }
 
-  voteSong(Song song, int value) {
-    // final DatabaseReference userSongsRef = FirebaseDatabase.instance
-    //     .ref('disco_party/users/${currentUser!.id}/songs/${song.id}');
+  voteSong(Song song, int value) async {
+    if (song.userID == currentUser!.id) {
+      return;
+    }
 
-    // if (value == 1) {
-    //   song.votes.add(1);
-    // } else {
-    //   song.votes.remove(1);
-    // }
+    final DatabaseReference userSongsRef = FirebaseDatabase.instance
+        .ref('disco_party/users/${song.userID}/songs/${song.id}/votes');
 
-    // userSongsRef.set(song.toJson());
+    DataSnapshot snapshot = await userSongsRef.get();
+
+    if (snapshot.value != null) {
+      Map votes = snapshot.value as Map;
+      if (votes.containsKey(currentUser!.id)) {
+        return;
+      }
+    }
+
+    userSongsRef.child(currentUser!.id).set(value);
   }
 
   void _addOrRemoveCredits({required int value, required String id}) async {

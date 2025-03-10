@@ -120,6 +120,21 @@ class _LandingPageState extends State<LandingPage> {
                           logic.addSongToQueue(null);
                         },
                         child: const Text("Add song to queue")),
+                    ElevatedButton(
+                      onPressed: () {
+                        Song mockUpSong = Song(
+                          userID: '2324',
+                          album: 'album',
+                          artist: 'artist',
+                          image: 'image',
+                          name: 'name',
+                          uri: 'spotify:track:23xcxs22',
+                          votes: {},
+                        );
+                        logic.voteSong(mockUpSong, 1);
+                      },
+                      child: const Text("Vote song"),
+                    )
                   ],
                 ),
               ),
