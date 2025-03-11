@@ -18,8 +18,7 @@ void main() async {
   FirebaseDatabase.instance.databaseURL =
       dotenv.env['FIREBASE_REALTIME_DATABASE_URL'];
 
-  DiscoPartyApi()
-      .getOrCreateUserInfos(username: 'DJ', id: StringUtils.generateUserId());
+  await DiscoPartyApi().getOrCreateUserInfos(username: 'DJ', id: 'testID');
   runApp(const MyApp());
 }
 

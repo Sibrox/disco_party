@@ -20,7 +20,7 @@ class DiscoPartyApi {
   Future<void> getOrCreateUserInfos(
       {required String username, required String id}) async {
     DataSnapshot snapshot = await _discoPartRef.child('users').get();
-    Map datas = snapshot.value as Map;
+    Map datas = snapshot.value as Map? ?? {};
 
     if (datas.isNotEmpty && datas.containsKey(id)) {
       await _getUserInfos(id);

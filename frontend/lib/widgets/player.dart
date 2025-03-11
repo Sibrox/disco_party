@@ -34,6 +34,7 @@ class PlayerState extends State<Player> {
           ? const CircularProgressIndicator()
           : Column(
               children: [
+                Text("Current user: ${DiscoPartyApi().currentUser?.id}"),
                 Container(
                   width: 400,
                   height: 400,
