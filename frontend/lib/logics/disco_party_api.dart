@@ -1,6 +1,7 @@
 import 'package:disco_party/models/user_infos.dart';
 import 'package:disco_party/models/disco_party_song.dart';
 import 'package:disco_party/spotify/spotify_api.dart';
+import 'package:disco_party/spotify/spotify_song.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 class DiscoPartyApi {
@@ -13,12 +14,12 @@ class DiscoPartyApi {
   DiscoPartyApi._internal();
 
   final DatabaseReference _discoPartRef =
-      FirebaseDatabase.instance.ref('disco_party/users');
+      FirebaseDatabase.instance.ref('disco_party/');
   UserInfos? currentUser;
 
   Future<void> getOrCreateUserInfos(
       {required String username, required String id}) async {
-    DataSnapshot snapshot = await _discoPartRef.get();
+    DataSnapshot snapshot = await _discoPartRef.child('users').get();
     Map datas = snapshot.value as Map;
 
     if (datas.isNotEmpty && datas.containsKey(id)) {
@@ -28,16 +29,20 @@ class DiscoPartyApi {
     }
   }
 
-  Future<bool> addSongToQueue(Song song) async {
+  Future<bool> addSongToQueue(SpotifySong spotifySong) async {
     if (currentUser == null || currentUser!.credits <= 0) {
       return false;
     }
 
     try {
-      await SpotifyApi.addSongToQueue(song.info.uri);
+      await SpotifyApi.addSongToQueue(spotifySong.uri);
 
-      final DatabaseReference userSongsRef =
-          _discoPartRef.child(currentUser!.id).child('songs');
+      var song = Song(
+        userID: currentUser!.id,
+        info: spotifySong,
+      );
+
+      final DatabaseReference userSongsRef = _discoPartRef.child('songs');
 
       DataSnapshot snapshot = await userSongsRef.get();
 
@@ -57,25 +62,28 @@ class DiscoPartyApi {
     }
   }
 
-  Future<bool> voteSong(Song song, int value) async {
-    if (currentUser == null || song.userID == currentUser!.id) {
+  Future<bool> voteSong(String songId, int value) async {
+    if (currentUser == null) {
       return false;
     }
 
-    final DatabaseReference userSongsRef = FirebaseDatabase.instance
-        .ref('disco_party/users/${song.userID}/songs/${song.id}/votes');
+    final DatabaseReference songRef =
+        FirebaseDatabase.instance.ref('disco_party/songs/$songId');
 
     try {
-      DataSnapshot snapshot = await userSongsRef.get();
+      DataSnapshot snapshot = await songRef.get();
 
-      if (snapshot.value != null) {
-        Map votes = snapshot.value as Map;
-        if (votes.containsKey(currentUser!.id)) {
-          return false;
-        }
+      if (snapshot.value == null) {
+        return false;
       }
 
-      await userSongsRef.child(currentUser!.id).set(value);
+      Song song = Song.fromJson(snapshot.value as Map);
+      if (song.votes.containsKey(currentUser!.id)) {
+        return false;
+      }
+
+      song.votes[currentUser!.id] = value;
+      await songRef.set(song.toJson());
 
       if (value > 0) {
         _addOrRemoveCredits(value: 1, id: song.userID);
@@ -95,7 +103,7 @@ class DiscoPartyApi {
         currentUser!.credits += value;
       }
 
-      final DatabaseReference userRef = _discoPartRef.child(id);
+      final DatabaseReference userRef = _discoPartRef.child('users').child(id);
       DataSnapshot snapshot = await userRef.child('credits').get();
 
       if (snapshot.value != null) {
@@ -125,7 +133,7 @@ class DiscoPartyApi {
 
   UserInfos _initUser(String name, String id) {
     UserInfos user = UserInfos(id: id, credits: 3, name: name);
-    _discoPartRef.child(id).set(user.toJson());
+    _discoPartRef.child('users').child(id).set(user.toJson());
     return user;
   }
 

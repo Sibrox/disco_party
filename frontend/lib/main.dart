@@ -1,5 +1,6 @@
 import 'package:disco_party/firebase_options.dart';
 import 'package:disco_party/logics/disco_party_api.dart';
+import 'package:disco_party/logics/string_utils.dart';
 import 'package:disco_party/widgets/dj_home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -17,7 +18,8 @@ void main() async {
   FirebaseDatabase.instance.databaseURL =
       dotenv.env['FIREBASE_REALTIME_DATABASE_URL'];
 
-  DiscoPartyApi().getOrCreateUserInfos(username: 'DJ', id: 'dj');
+  DiscoPartyApi()
+      .getOrCreateUserInfos(username: 'DJ', id: StringUtils.generateUserId());
   runApp(const MyApp());
 }
 

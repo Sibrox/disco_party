@@ -14,7 +14,7 @@ class SpotifySong {
     required this.uri,
   });
 
-  factory SpotifySong.fromJson(Map<String, dynamic> json) {
+  factory SpotifySong.fromJson(Map<dynamic, dynamic> json) {
     return SpotifySong(
       name: json['name'],
       artist: json['artist'],

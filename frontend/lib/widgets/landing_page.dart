@@ -1,6 +1,4 @@
 import 'package:disco_party/logics/disco_party_api.dart';
-import 'package:disco_party/models/disco_party_song.dart';
-import 'package:disco_party/spotify/spotify_song.dart';
 import 'package:flutter/material.dart';
 import 'dart:html';
 
@@ -113,8 +111,9 @@ class _LandingPageState extends State<LandingPage> {
                     ElevatedButton(
                         onPressed: () {},
                         child: const Text("Add song to queue")),
-                    ElevatedButton(
-                      onPressed: () {
+                    /* ElevatedButton(
+                           
+                        onPressed: () {
                         var spotifySong = SpotifySong(
                           album: 'album',
                           artist: 'artist',
@@ -128,10 +127,11 @@ class _LandingPageState extends State<LandingPage> {
                           userID: '2324',
                           votes: {},
                         );
-                        logic.voteSong(mockUpSong, 1);
-                      },
+                        // logic.voteSong(mockUpSong, 1);
+                      }, 
                       child: const Text("Vote song"),
-                    )
+                      
+                    )*/
                   ],
                 ),
               ),
