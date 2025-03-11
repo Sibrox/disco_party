@@ -21,8 +21,14 @@ class PlayerState extends State<Player> {
 
   void loadCurrentSong() async {
     SpotifySong song = await SpotifyApi.player();
+
     setState(() {
       _currentSong = song;
+    });
+
+    Future.delayed(Duration(milliseconds: song.durationsMs - song.progressMs),
+        () {
+      loadCurrentSong();
     });
   }
 
@@ -34,10 +40,7 @@ class PlayerState extends State<Player> {
           ? const CircularProgressIndicator()
           : Column(
               children: [
-                Text("Current user: ${DiscoPartyApi().currentUser?.id}"),
                 Container(
-                  width: 400,
-                  height: 400,
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.white, width: 10),
                   ),
