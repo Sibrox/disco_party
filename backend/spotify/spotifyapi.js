@@ -36,7 +36,8 @@ export class SpotifyApi {
                 }
                 
                 try {
-                    const song = Song.fromJSON(body.item);
+                    const songJSON = {...body.item, progress_ms: body.progress_ms};
+                    const song = Song.fromJSON(songJSON);
                     console.log(song.toJsonString());
                     resolve(song);
                 } catch (err) {

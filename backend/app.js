@@ -115,7 +115,7 @@ app.get('/add_to_queue', async function(req, res) {
   }
 
   await new SpotifyApi().addSongToQueue(uri);
-
+    
   return res.send("OK");
 });
 
