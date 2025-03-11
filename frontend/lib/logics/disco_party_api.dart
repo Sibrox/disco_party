@@ -1,5 +1,5 @@
-import 'package:disco_party/models/user_infos.dart';
-import 'package:disco_party/models/disco_party_song.dart';
+import 'package:disco_party/models/user.dart';
+import 'package:disco_party/models/song.dart';
 import 'package:disco_party/spotify/spotify_api.dart';
 import 'package:disco_party/spotify/spotify_song.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -15,7 +15,7 @@ class DiscoPartyApi {
 
   final DatabaseReference _discoPartRef =
       FirebaseDatabase.instance.ref('disco_party/');
-  UserInfos? currentUser;
+  User? currentUser;
 
   Future<void> getOrCreateUserInfos(
       {required String username, required String id}) async {
@@ -124,15 +124,15 @@ class DiscoPartyApi {
     try {
       DataSnapshot snapshot = await _discoPartRef.child(id).get();
       if (snapshot.value != null) {
-        currentUser = UserInfos.fromJson(snapshot.value as Map);
+        currentUser = User.fromJson(snapshot.value as Map);
       }
     } catch (error) {
       print('Error getting user info: $error');
     }
   }
 
-  UserInfos _initUser(String name, String id) {
-    UserInfos user = UserInfos(id: id, credits: 3, name: name);
+  User _initUser(String name, String id) {
+    User user = User(id: id, credits: 3, name: name);
     _discoPartRef.child('users').child(id).set(user.toJson());
     return user;
   }

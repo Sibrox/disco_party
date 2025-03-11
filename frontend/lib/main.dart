@@ -1,6 +1,6 @@
 import 'package:disco_party/firebase_options.dart';
 import 'package:disco_party/logics/disco_party_api.dart';
-import 'package:disco_party/logics/string_utils.dart';
+import 'package:disco_party/screens/login.dart';
 import 'package:disco_party/widgets/dj_home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -25,7 +25,6 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -34,6 +33,6 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: const Scaffold(body: DjHome()));
+        home: const Scaffold(body: Login()));
   }
 }

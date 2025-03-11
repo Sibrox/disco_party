@@ -1,10 +1,10 @@
-class UserInfos {
+class User {
   String id;
   String name;
 
   int credits;
 
-  UserInfos({
+  User({
     required this.id,
     required this.credits,
     required this.name,
@@ -18,8 +18,8 @@ class UserInfos {
     };
   }
 
-  factory UserInfos.fromJson(Map<dynamic, dynamic> json) {
-    return UserInfos(
+  factory User.fromJson(Map<dynamic, dynamic> json) {
+    return User(
       id: json['id'],
       credits: json['credits'],
       name: json['name'],
