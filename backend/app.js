@@ -50,7 +50,8 @@ app.get('/save_token', function(req, res) {
     }
     console.log('Refresh Token saved to refresh.txt');
   });
-  res.redirect('/player');
+  
+  return res.json("Login successful. You can class the window");
 });
 
 app.get('/callback', function(req, res)  {
@@ -102,11 +103,7 @@ app.get('/player', async function(req, res) {
 });
 
 app.get('/search', async function(req, res) {
-
-  var query = req.query.q;
-
-  var songs = await new SpotifyApi().searchSong(query);
-
+  var songs = await new SpotifyApi().searchSong(req.query.q);
   return res.json(songs.map(song => JSON.parse(song.toJsonString())));
 });
 
