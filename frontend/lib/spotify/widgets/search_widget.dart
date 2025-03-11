@@ -1,3 +1,5 @@
+import 'package:disco_party/logics/disco_party_api.dart';
+import 'package:disco_party/models/disco_party_song.dart';
 import 'package:flutter/material.dart';
 import 'package:disco_party/spotify/spotify_song.dart';
 import 'package:disco_party/spotify/spotify_api.dart';
@@ -106,7 +108,8 @@ class _SearchWidgetState extends State<SearchWidget> {
                   title: Text(song.name),
                   subtitle: Text('${song.artist} • ${song.album}'),
                   onTap: () {
-                    SpotifyApi.addSongToQueue(song.uri);
+                    var firebaseSong = Song(info: song, userID: 'dj');
+                    DiscoPartyApi().addSongToQueue(firebaseSong);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Added ${song.name} to queue')),
                     );
