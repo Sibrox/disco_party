@@ -1,32 +1,32 @@
+import 'package:disco_party/firebase/song_service.dart';
+import 'package:disco_party/firebase/user_service.dart';
 import 'package:disco_party/models/user.dart';
 import 'package:disco_party/models/song.dart';
 import 'package:disco_party/spotify/spotify_api.dart';
 import 'package:disco_party/spotify/spotify_song.dart';
-import 'package:firebase_database/firebase_database.dart';
 
 class DiscoPartyApi {
-  static final DiscoPartyApi _instance = DiscoPartyApi._internal();
-
-  factory DiscoPartyApi() {
-    return _instance;
-  }
+  static final DiscoPartyApi instance = DiscoPartyApi._internal();
+  User? currentUser;
 
   DiscoPartyApi._internal();
 
-  final DatabaseReference _discoPartRef =
-      FirebaseDatabase.instance.ref('disco_party/');
-  User? currentUser;
+  factory DiscoPartyApi() {
+    return instance;
+  }
 
-  Future<void> getOrCreateUserInfos(
-      {required String username, required String id}) async {
-    DataSnapshot snapshot = await _discoPartRef.child('users').get();
-    Map datas = snapshot.value as Map? ?? {};
-
-    if (datas.isNotEmpty && datas.containsKey(id)) {
-      await _getUserInfos(id);
-    } else {
-      currentUser = _initUser(username, id);
+  Future<User> init({required String userId, String? userName}) async {
+    User? currentUser = await User.getById(userId);
+    if (currentUser == null && userName != null) {
+      currentUser = await User.create(id: userId, name: userName);
     }
+
+    User? newUser = currentUser;
+    if (newUser != null) {
+      return newUser;
+    }
+
+    throw Exception('Failed to get or create user');
   }
 
   Future<bool> addSongToQueue(SpotifySong spotifySong) async {
@@ -42,19 +42,9 @@ class DiscoPartyApi {
         info: spotifySong,
       );
 
-      final DatabaseReference userSongsRef = _discoPartRef.child('songs');
+      UserService.instance.addCredits(currentUser!.id, -1);
+      SongService.instance.addSong(song);
 
-      DataSnapshot snapshot = await userSongsRef.get();
-
-      if (snapshot.value != null) {
-        Map songs = snapshot.value as Map;
-        if (songs.containsKey(song.id)) {
-          return false;
-        }
-      }
-
-      _addOrRemoveCredits(value: -1, id: currentUser!.id);
-      userSongsRef.child(song.id).set(song.toJson());
       return true;
     } catch (error) {
       print(error);
@@ -63,31 +53,23 @@ class DiscoPartyApi {
   }
 
   Future<bool> voteSong(String songId, int value) async {
+    User? currentUser = this.currentUser;
     if (currentUser == null) {
       return false;
     }
 
-    final DatabaseReference songRef =
-        FirebaseDatabase.instance.ref('disco_party/songs/$songId');
-
     try {
-      DataSnapshot snapshot = await songRef.get();
+      Song? song = await SongService.instance.getSong(songId);
+      if (song == null) {
+        throw Exception('Song not found');
+      }
 
-      if (snapshot.value == null) {
+      if (song.hasUserVoted(currentUser.id)) {
         return false;
       }
 
-      Song song = Song.fromJson(snapshot.value as Map);
-      if (song.votes.containsKey(currentUser!.id)) {
-        return false;
-      }
-
-      song.votes[currentUser!.id] = value;
-      await songRef.set(song.toJson());
-
-      if (value > 0) {
-        _addOrRemoveCredits(value: 1, id: song.userID);
-      }
+      UserService.instance.addCredits(currentUser.id, 1);
+      SongService.instance.addVote(songId, currentUser.id, value);
 
       return true;
     } catch (error) {
@@ -95,51 +77,4 @@ class DiscoPartyApi {
       return false;
     }
   }
-
-  Future<void> _addOrRemoveCredits(
-      {required int value, required String id}) async {
-    try {
-      if (currentUser != null && currentUser!.id == id) {
-        currentUser!.credits += value;
-      }
-
-      final DatabaseReference userRef = _discoPartRef.child('users').child(id);
-      DataSnapshot snapshot = await userRef.child('credits').get();
-
-      if (snapshot.value != null) {
-        int currentCredits = snapshot.value as int;
-        await userRef.child('credits').set(currentCredits + value);
-      } else {
-        await userRef.child('credits').set(value);
-      }
-    } catch (error) {
-      print('Error updating credits: $error');
-      if (currentUser != null && currentUser!.id == id) {
-        currentUser!.credits -= value;
-      }
-    }
-  }
-
-  Future<void> _getUserInfos(String id) async {
-    try {
-      DataSnapshot snapshot = await _discoPartRef.child(id).get();
-      if (snapshot.value != null) {
-        currentUser = User.fromJson(snapshot.value as Map);
-      }
-    } catch (error) {
-      print('Error getting user info: $error');
-    }
-  }
-
-  User _initUser(String name, String id) {
-    User user = User(id: id, credits: 3, name: name);
-    _discoPartRef.child('users').child(id).set(user.toJson());
-    return user;
-  }
-
-  // Method to check if a user is initialized
-  bool get isUserInitialized => currentUser != null;
-
-  // Method to get current credits
-  int get currentCredits => currentUser?.credits ?? 0;
 }

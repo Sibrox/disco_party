@@ -19,9 +19,27 @@ class SpotifySong {
     this.durationsMs = 0,
     this.progressMs = 0,
   });
+  SpotifySong copyWith({
+    String? name,
+    String? artist,
+    String? album,
+    String? image,
+    String? uri,
+    int? progressMs,
+    int? durationsMs,
+  }) {
+    return SpotifySong(
+      name: name ?? this.name,
+      artist: artist ?? this.artist,
+      album: album ?? this.album,
+      image: image ?? this.image,
+      progressMs: progressMs ?? this.progressMs,
+      durationsMs: durationsMs ?? this.durationsMs,
+      uri: uri ?? this.uri,
+    );
+  }
 
   factory SpotifySong.fromJson(Map<dynamic, dynamic> json) {
-    print(json);
     return SpotifySong(
       name: json['name'],
       artist: json['artist'],

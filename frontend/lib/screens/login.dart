@@ -1,7 +1,7 @@
 import 'dart:html' as html;
 import 'package:disco_party/logics/disco_party_api.dart';
 import 'package:disco_party/logics/string_utils.dart';
-import 'package:disco_party/widgets/dj_home.dart';
+import 'package:disco_party/screens/dj_home.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
@@ -31,14 +31,12 @@ class _LoginState extends State<Login> {
     final uri = Uri.parse(html.window.location.href);
     final queryParams = uri.queryParameters;
 
-    // Check if 'id' parameter exists in URL
     if (queryParams.containsKey('id')) {
       final userId = queryParams['id']!;
       setState(() {
         _userId = userId;
       });
 
-      // Check if this user ID exists in Firebase
       try {
         final snapshot = await FirebaseDatabase.instance
             .ref('disco_party/users/$userId')
@@ -56,7 +54,6 @@ class _LoginState extends State<Login> {
         });
       }
     } else {
-      // No ID in URL
       setState(() {
         _userId = null;
         _userExists = false;
@@ -75,16 +72,13 @@ class _LoginState extends State<Login> {
     });
 
     try {
-      // Generate a new user ID if needed
       final userId = _userId ?? StringUtils.generateUserId();
 
-      // Create user with API
-      await _api.getOrCreateUserInfos(
-        username: _usernameController.text.trim(),
-        id: userId,
+      await _api.init(
+        userId: userId,
+        userName: _usernameController.text.trim(),
       );
 
-      // If we created a new ID, add it to URL
       if (_userId == null) {
         final uri = Uri.parse(html.window.location.href);
         final newUrl = uri.replace(queryParameters: {
@@ -127,27 +121,30 @@ class _LoginState extends State<Login> {
     }
 
     if (_userExists) {
-      // User exists, show DjHome
       return const DjHome();
     } else {
-      // User does not exist, show login form
       return Scaffold(
         body: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFFFF80AB), Color(0xFFC51162)],
+              begin: Alignment.topCenter,
+              end: Alignment.center,
+              colors: [
+                Color(0xFFC51162),
+                Colors.white,
+              ],
             ),
           ),
           child: SafeArea(
             child: Center(
               child: Card(
+                shadowColor: Color(0xFFC51162),
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0),
+                ),
                 margin: const EdgeInsets.all(20),
                 elevation: 8,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: SizedBox(
@@ -164,7 +161,7 @@ class _LoginState extends State<Login> {
                           ),
                           const SizedBox(height: 24),
                           const Text(
-                            'Welcome to Disco Party',
+                            'Hai voglia di DISCO PARTY?',
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -172,7 +169,7 @@ class _LoginState extends State<Login> {
                           ),
                           const SizedBox(height: 10),
                           const Text(
-                            'Enter your name to continue',
+                            'Dimostra il tuo talento!',
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey,
@@ -182,8 +179,8 @@ class _LoginState extends State<Login> {
                           TextFormField(
                             controller: _usernameController,
                             decoration: InputDecoration(
-                              labelText: 'Your Name',
-                              hintText: 'How should we call you?',
+                              labelText: 'Il tuo nome',
+                              hintText: 'Gli altri giocatori ti vedranno così',
                               prefixIcon: const Icon(Icons.person),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(15),
@@ -191,10 +188,10 @@ class _LoginState extends State<Login> {
                             ),
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Please enter your name';
+                                return 'Per favore inserisci il tuo nome';
                               }
                               if (value.trim().length < 2) {
-                                return 'Name is too short';
+                                return 'Nome troppo corto. Minimo 2 caratteri';
                               }
                               return null;
                             },
@@ -213,7 +210,7 @@ class _LoginState extends State<Login> {
                               minimumSize: const Size(double.infinity, 0),
                             ),
                             child: const Text(
-                              'JOIN THE PARTY',
+                              'UNISCITI ALLA FESTA!',
                               style: TextStyle(fontSize: 16),
                             ),
                           ),
