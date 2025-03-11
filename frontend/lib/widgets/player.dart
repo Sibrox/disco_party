@@ -1,3 +1,4 @@
+import 'package:disco_party/logics/disco_party_api.dart';
 import 'package:disco_party/spotify/spotify_api.dart';
 import 'package:disco_party/spotify/spotify_song.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +34,7 @@ class PlayerState extends State<Player> {
           ? const CircularProgressIndicator()
           : Column(
               children: [
+                Text("Current user: ${DiscoPartyApi().currentUser?.id}"),
                 Container(
                   width: 400,
                   height: 400,
@@ -48,7 +50,9 @@ class PlayerState extends State<Player> {
                 // Vote buttons
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      DiscoPartyApi().voteSong(_currentSong!.id, -1);
+                    },
                     icon: const Icon(
                       Icons.thumb_down,
                       color: Colors.white,
@@ -67,7 +71,9 @@ class PlayerState extends State<Player> {
                   ),
                   const SizedBox(width: 20),
                   ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      DiscoPartyApi().voteSong(_currentSong!.id, 1);
+                    },
                     icon: const Icon(
                       Icons.thumb_up,
                       color: Colors.white,
@@ -85,6 +91,30 @@ class PlayerState extends State<Player> {
                     ),
                   )
                 ]),
+                const SizedBox(
+                  height: 16,
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    loadCurrentSong();
+                  },
+                  icon: const Icon(
+                    Icons.thumb_up,
+                    color: Colors.white,
+                  ),
+                  label: const Text('Reload'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 76, 122, 175)
+                        .withOpacity(0.8),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    disabledBackgroundColor: Colors.grey.withOpacity(0.5),
+                  ),
+                )
               ],
             ),
     );

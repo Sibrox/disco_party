@@ -21,6 +21,10 @@ class SpotifyApi {
 
   static Future<void> addSongToQueue(uri) async {
     var url = '$baseUrl/add_to_queue?uri=$uri';
-    await http.get(Uri.parse(url));
+    var response = await http.get(Uri.parse(url));
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to add song to queue');
+    }
   }
 }

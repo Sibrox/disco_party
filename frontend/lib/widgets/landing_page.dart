@@ -1,7 +1,4 @@
-import 'package:disco_party/logics/landing_page.dart';
-import 'package:disco_party/models/user_infos.dart';
-import 'package:disco_party/widgets/player.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:disco_party/logics/disco_party_api.dart';
 import 'package:flutter/material.dart';
 import 'dart:html';
 
@@ -17,8 +14,7 @@ class _LandingPageState extends State<LandingPage> {
   late String url;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
-  final _discoPartRef = FirebaseDatabase.instance.ref('disco_party/users');
-  final LandingPageLogic logic = LandingPageLogic();
+  final DiscoPartyApi logic = DiscoPartyApi();
 
   @override
   void initState() {
@@ -32,11 +28,6 @@ class _LandingPageState extends State<LandingPage> {
     setState(() {
       queryParams = uri.queryParameters;
     });
-  }
-
-  void test() async {
-    DataSnapshot data = await _discoPartRef.get();
-    print(data.value);
   }
 
   @override
@@ -99,7 +90,8 @@ class _LandingPageState extends State<LandingPage> {
                             queryParams?['id'] != null) {
                           final String name = _nameController.text;
 
-                          logic.getOrCreateUserInfos(name, queryParams!['id']);
+                          logic.getOrCreateUserInfos(
+                              username: name, id: queryParams!['id']);
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -117,25 +109,29 @@ class _LandingPageState extends State<LandingPage> {
                       ),
                     ),
                     ElevatedButton(
-                        onPressed: () {
-                          logic.addSongToQueue(null);
-                        },
+                        onPressed: () {},
                         child: const Text("Add song to queue")),
-                    ElevatedButton(
-                      onPressed: () {
-                        Song mockUpSong = Song(
-                          userID: '2324',
+                    /* ElevatedButton(
+                           
+                        onPressed: () {
+                        var spotifySong = SpotifySong(
                           album: 'album',
                           artist: 'artist',
                           image: 'image',
                           name: 'name',
                           uri: 'spotify:track:23xcxs22',
+                        );
+
+                        Song mockUpSong = Song(
+                          info: spotifySong,
+                          userID: '2324',
                           votes: {},
                         );
-                        logic.voteSong(mockUpSong, 1);
-                      },
+                        // logic.voteSong(mockUpSong, 1);
+                      }, 
                       child: const Text("Vote song"),
-                    )
+                      
+                    )*/
                   ],
                 ),
               ),
