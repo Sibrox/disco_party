@@ -1,4 +1,6 @@
+import 'package:disco_party/firebase/song_service.dart';
 import 'package:disco_party/logics/disco_party_api.dart';
+import 'package:disco_party/models/song.dart';
 import 'package:flutter/material.dart';
 import 'package:disco_party/spotify/spotify_song.dart';
 import 'package:disco_party/spotify/spotify_api.dart';
@@ -20,6 +22,70 @@ class _SearchWidgetState extends State<SearchWidget> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _confirmDialog(SpotifySong song, List<String> messages) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Sei sicur*?'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: messages.map((message) => Text(message)).toList(),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Non aggiungere'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Aggiungi'),
+              onPressed: () {
+                DiscoPartyApi().addSongToQueue(song);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Added "${song.name}" to queue'),
+                    backgroundColor: const Color(0xFFC51162),
+                  ),
+                );
+
+                setState(() {
+                  widget.onToggleSearch();
+                  _searchResults = [];
+                  _searchController.clear();
+                });
+
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void tryToAddSongInQueue(SpotifySong info) async {
+    // check if song is already in queue
+    // if not, add it
+    // else show error message
+
+    Song? song = await SongService.instance.getSong(info.id);
+    print(song);
+    song == null
+        ? _confirmDialog(info, [
+            'Stai per aggiungere la canzone "${info.name}" di "${info.artist}" alla coda.',
+            'Questo ti costerà un credito',
+            'Sei sicur*?'
+          ])
+        : _confirmDialog(info, [
+            'La canzone "${info.name}" di "${info.artist}" è già presente nella coda.',
+            'Puoi aggiungerla gratuitamente, ma il primo DJ ad averla inserita riceverà i voti al posto tuo.'
+          ]);
   }
 
   Future<void> _performSearch(String query) async {
@@ -124,28 +190,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                   ),
                   child: InkWell(
                     onTap: () {
-                      DiscoPartyApi().addSongToQueue(song);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Row(
-                            children: [
-                              const Icon(Icons.check_circle,
-                                  color: Colors.white),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                  child: Text('Added "${song.name}" to queue')),
-                            ],
-                          ),
-                          backgroundColor: const Color(0xFFC51162),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-
-                      setState(() {
-                        widget.onToggleSearch();
-                        _searchResults = [];
-                        _searchController.clear();
-                      });
+                      tryToAddSongInQueue(song);
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -204,7 +249,6 @@ class _SearchWidgetState extends State<SearchWidget> {
                               ],
                             ),
                           ),
-                          // Add button
                           Container(
                             width: 36,
                             height: 36,
@@ -220,20 +264,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                               ),
                               padding: EdgeInsets.zero,
                               onPressed: () {
-                                DiscoPartyApi().addSongToQueue(song);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content:
-                                        Text('Added "${song.name}" to queue'),
-                                    backgroundColor: const Color(0xFFC51162),
-                                  ),
-                                );
-
-                                setState(() {
-                                  widget.onToggleSearch();
-                                  _searchResults = [];
-                                  _searchController.clear();
-                                });
+                                tryToAddSongInQueue(song);
                               },
                             ),
                           ),
