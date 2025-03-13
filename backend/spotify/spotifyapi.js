@@ -174,35 +174,35 @@ export class SpotifyApi {
     async addSongToQueue(songUri) {
         const apiCall = () => {
             return new Promise((resolve, reject) => {
-            request({
-                url: `https://api.spotify.com/v1/me/player/queue?uri=${encodeURIComponent(songUri)}`,
-                method: 'POST',
-                headers: {
-                'Authorization': 'Bearer ' + this.access_token
-                },
-                json: true,
-            }, (error, response, body) => {
-                if (error) {
-                console.error("Error adding song to queue:", error);
-                return reject(error);
-                }
-                
-                if (response.statusCode === 401) {
-                const unauthorizedError = new Error('Unauthorized');
-                unauthorizedError.statusCode = 401;
-                return reject(unauthorizedError);
-                }
-                
-                if (response.statusCode === 404) {
-                return reject(new Error('No active device found'));
-                }
-                
-                if (response.statusCode !== 200) {
-                return reject(new Error(`HTTP error! Status: ${response.statusCode}`));
-                }
-                
-                resolve(true);
-            });
+                request({
+                    url: `https://api.spotify.com/v1/me/player/queue?uri=${encodeURIComponent(songUri)}`,
+                    method: 'POST',
+                    headers: {
+                    'Authorization': 'Bearer ' + this.access_token
+                    },
+                    json: true,
+                }, (error, response, body) => {
+                    if (error) {
+                    console.error("Error adding song to queue:", error);
+                    return reject(error);
+                    }
+                    
+                    if (response.statusCode === 401) {
+                    const unauthorizedError = new Error('Unauthorized');
+                    unauthorizedError.statusCode = 401;
+                    return reject(unauthorizedError);
+                    }
+                    
+                    if (response.statusCode === 404) {
+                    return reject(new Error('No active device found'));
+                    }
+                    
+                    if (response.statusCode !== 200) {
+                    return reject(new Error(`HTTP error! Status: ${response.statusCode}`));
+                    }
+                    
+                    resolve(true);
+                });
             });
         };
         
@@ -210,7 +210,7 @@ export class SpotifyApi {
             return await this.executeWithTokenRefresh(apiCall);
         } catch (err) {
             console.error("Failed after token refresh attempt:", err);
-            return false; // Return false to indicate failure after refresh attempt
+            return false;
         }
     }
 }
