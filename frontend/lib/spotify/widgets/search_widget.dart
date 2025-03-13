@@ -22,6 +22,55 @@ class _SearchWidgetState extends State<SearchWidget> {
     super.dispose();
   }
 
+  Future<void> _confirmDialog(SpotifySong song) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Sei sicur*?'),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Stai per aggiungere una canzone alla coda.'),
+                Text('Questo ti costerà 1 credito.'),
+                Text('Vuoi proseguire?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Non aggiungere'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Aggiungi'),
+              onPressed: () {
+                DiscoPartyApi().addSongToQueue(song);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Added "${song.name}" to queue'),
+                    backgroundColor: const Color(0xFFC51162),
+                  ),
+                );
+
+                setState(() {
+                  widget.onToggleSearch();
+                  _searchResults = [];
+                  _searchController.clear();
+                });
+
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _performSearch(String query) async {
     if (_searchResults.isEmpty) {
       widget.onToggleSearch();
@@ -124,28 +173,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                   ),
                   child: InkWell(
                     onTap: () {
-                      DiscoPartyApi().addSongToQueue(song);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Row(
-                            children: [
-                              const Icon(Icons.check_circle,
-                                  color: Colors.white),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                  child: Text('Added "${song.name}" to queue')),
-                            ],
-                          ),
-                          backgroundColor: const Color(0xFFC51162),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-
-                      setState(() {
-                        widget.onToggleSearch();
-                        _searchResults = [];
-                        _searchController.clear();
-                      });
+                      _confirmDialog(song);
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -204,7 +232,6 @@ class _SearchWidgetState extends State<SearchWidget> {
                               ],
                             ),
                           ),
-                          // Add button
                           Container(
                             width: 36,
                             height: 36,
@@ -220,20 +247,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                               ),
                               padding: EdgeInsets.zero,
                               onPressed: () {
-                                DiscoPartyApi().addSongToQueue(song);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content:
-                                        Text('Added "${song.name}" to queue'),
-                                    backgroundColor: const Color(0xFFC51162),
-                                  ),
-                                );
-
-                                setState(() {
-                                  widget.onToggleSearch();
-                                  _searchResults = [];
-                                  _searchController.clear();
-                                });
+                                _confirmDialog(song);
                               },
                             ),
                           ),
