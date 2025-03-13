@@ -123,4 +123,17 @@ class SongService {
       throw Exception('Failed to get top voted songs: $e');
     }
   }
+
+  Future<String?> getDJBySongID({required String songID}) {
+    try {
+      return _dbRef.child(songID).child('userID').get().then((snapshot) {
+        if (snapshot.exists) {
+          return snapshot.value as String;
+        }
+        return null;
+      });
+    } catch (error) {
+      throw Exception('Failed to get DJ by song ID: $error');
+    }
+  }
 }

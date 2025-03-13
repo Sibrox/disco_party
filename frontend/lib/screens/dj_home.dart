@@ -68,7 +68,7 @@ class _DjHomeState extends State<DjHome> with SingleTickerProviderStateMixin {
                   left: 0,
                   right: 0,
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     child: Container(),
                   )),
               Positioned(

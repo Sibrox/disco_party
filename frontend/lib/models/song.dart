@@ -10,9 +10,7 @@ class Song {
 
   String get id => info.id;
 
-  Song({required this.userID, required this.info, this.votes = const {}}) {
-    votes = {};
-  }
+  Song({required this.userID, required this.info, this.votes = const {}});
 
   Map<String, dynamic> toJson() {
     var baseJson = {
@@ -46,6 +44,7 @@ class Song {
 
   Future<bool> hasUserVoted(String userId) async {
     Song? updatedSong = await SongService.instance.getSong(id);
+
     return updatedSong?.votes.containsKey(userId) ?? false;
   }
 
