@@ -86,7 +86,6 @@ export class SpotifyApi {
             request({
                 url: `https://api.spotify.com/v1/me/player/queue?uri=${songUri}`,
                 method: 'POST',
-                method: 'POST',
                 headers: {
                     'Authorization': 'Bearer ' + this.access_token
                 },
@@ -98,6 +97,35 @@ export class SpotifyApi {
                 }
                 
                 resolve();
+            });
+        });
+    }
+
+    async getSong(id) {
+        return await new Promise((resolve, reject) => {
+            request({
+                method: 'GET',
+                url: `https://api.spotify.com/v1/tracks/${id}`,
+                headers: {
+                    'Authorization': 'Bearer ' + this.access_token
+                },
+                json: true
+            }, (error, response, body) => {
+                if (error) {
+                    console.error("Error fetching song:", error);
+                    return reject(error);
+                }
+                
+                if (response.statusCode !== 200) {
+                    console.error("API returned status code:", response.statusCode);
+                    return reject(new Error(`HTTP error! Status: ${response.statusCode}`));
+                }
+                
+                try {
+                    resolve(Song.fromJSON(body));
+                } catch (err) {
+                    reject(err);
+                }
             });
         });
     }

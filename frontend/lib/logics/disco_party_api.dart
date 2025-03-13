@@ -30,11 +30,16 @@ class DiscoPartyApi {
   }
 
   Future<bool> addSongToQueue(SpotifySong spotifySong) async {
-    if (currentUser == null || currentUser!.credits <= 0) {
-      return false;
-    }
-
     try {
+      currentUser = await User.getById(currentUser!.id);
+      if (currentUser == null) {
+        throw Exception('User not found');
+      }
+
+      if (currentUser!.credits <= 0) {
+        return false;
+      }
+
       await SpotifyApi.addSongToQueue(spotifySong.uri);
 
       var song = Song(
@@ -52,24 +57,27 @@ class DiscoPartyApi {
     }
   }
 
-  Future<bool> voteSong(String songId, int value) async {
-    User? currentUser = this.currentUser;
-    if (currentUser == null) {
-      return false;
-    }
-
+  Future<bool> voteSong(SpotifySong info, int value) async {
     try {
-      Song? song = await SongService.instance.getSong(songId);
-      if (song == null) {
-        throw Exception('Song not found');
-      }
-
-      if (song.hasUserVoted(currentUser.id)) {
+      currentUser = await User.getById(currentUser!.id);
+      if (currentUser == null) {
         return false;
       }
 
-      UserService.instance.addCredits(currentUser.id, 1);
-      SongService.instance.addVote(songId, currentUser.id, value);
+      Song? song = await SongService.instance.getSong(info.id);
+
+      if (song == null) {
+        song = Song(info: info, userID: 'dj_gallottino');
+        print(song);
+        SongService.instance.addSong(song);
+      }
+
+      if (await song.hasUserVoted(currentUser!.id)) {
+        return false;
+      }
+
+      UserService.instance.addCredits(currentUser!.id, 1);
+      SongService.instance.addVote(song.id, currentUser!.id, value);
 
       return true;
     } catch (error) {

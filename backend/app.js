@@ -38,13 +38,13 @@ app.get('/save_token', function(req, res) {
   var token = req.query.access_token;
   var refresh = req.query.refresh_token;
   console.log(token);
-  fs.writeFile('token.txt', token, function(err) {
+  fs.writeFileSync('token.txt', token, function(err) {
     if (err) {
       return console.log(err);
     }
     console.log('Access Token saved to token.txt');
   });
-  fs.writeFile('refresh.txt', refresh, function(err) {
+  fs.writeFileSync('refresh.txt', refresh, function(err) {
     if (err) {
       return console.log(err);
     }
@@ -52,6 +52,33 @@ app.get('/save_token', function(req, res) {
   });
   
   return res.json("Login successful. You can class the window");
+});
+
+app.get('/refresh_token', async function(req, res) {
+  
+  var refresh_token = fs.readFileSync('refresh.txt', 'utf8');
+  var authOptions = {
+    url: 'https://accounts.spotify.com/api/token',
+    headers: { 'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64')) },
+    form: {
+      grant_type: 'refresh_token',
+      refresh_token: refresh_token
+    },
+    json: true
+  };
+
+  request.post(authOptions, function(error, response, body) {
+    var access_token = body.access_token;
+  
+    fs.writeFileSync('token.txt', access_token, function(err) {
+      if (err) {
+        return console.log(err);
+      }
+      console.log('Access Token saved to token.txt');
+    });
+  });
+
+  res.send("OK");
 });
 
 app.get('/callback', function(req, res)  {
@@ -117,6 +144,17 @@ app.get('/add_to_queue', async function(req, res) {
   await new SpotifyApi().addSongToQueue(uri);
     
   return res.send("OK");
+});
+
+app.get('/track', async function(req, res) {
+  var trackId = req.query.trackId || null;
+
+  if (trackId === null) {
+    return res.status(400).send("Missing Track ID");
+  }
+
+  var song = await new SpotifyApi().getSong(trackId);
+  return res.json(JSON.parse(song.toJsonString()));
 });
 
 const port = 8080;

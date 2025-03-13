@@ -46,7 +46,7 @@ class SpotifySong {
       album: json['album'],
       image: json['image'],
       uri: json['uri'],
-      durationsMs: json['duration_ms'],
+      durationsMs: json.containsKey('progress_ms') ? json['duration_ms'] : 0,
       progressMs: json.containsKey('progress_ms') ? json['progress_ms'] : 0,
     );
   }

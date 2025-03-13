@@ -204,17 +204,17 @@ class PlayerState extends State<Player> {
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   ElevatedButton.icon(
                     onPressed: () {
-                      DiscoPartyApi.instance.voteSong(_currentSong!.id, -1);
+                      DiscoPartyApi.instance.voteSong(_currentSong!, -1);
                     },
                     icon: const Icon(
                       Icons.thumb_down,
                       color: Color(0xFFC51162),
-                      size: 18,
+                      size: 24,
                     ),
                     label: const Text(
-                      'No, ti prego :(',
+                      'Oh no..',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 18,
                         fontWeight: FontWeight.w500,
                         color: Color(0xFFC51162),
                       ),
@@ -224,9 +224,8 @@ class PlayerState extends State<Player> {
                       foregroundColor: const Color(0xFFC51162),
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                          horizontal: 24, vertical: 20),
+                      shape: const RoundedRectangleBorder(
                         side: const BorderSide(
                             color: Color(0xFFC51162), width: 1),
                       ),
@@ -236,17 +235,15 @@ class PlayerState extends State<Player> {
                   const SizedBox(width: 16),
                   ElevatedButton.icon(
                     onPressed: () {
-                      DiscoPartyApi.instance.voteSong(_currentSong!.id, 1);
+                      print("HERE");
+                      DiscoPartyApi.instance.voteSong(_currentSong!, 1);
                     },
-                    icon: const Icon(
-                      Icons.thumb_up,
-                      color: Colors.white,
-                      size: 18,
-                    ),
+                    icon: const Icon(Icons.thumb_up,
+                        color: Colors.white, size: 24),
                     label: const Text(
                       'Mi piace!',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 18,
                         fontWeight: FontWeight.w500,
                         color: Colors.white,
                       ),
@@ -255,11 +252,12 @@ class PlayerState extends State<Player> {
                       backgroundColor: const Color(0xFFC51162),
                       foregroundColor: Colors.white,
                       elevation: 0,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                      shape: const RoundedRectangleBorder(
+                        side: const BorderSide(
+                            color: Color(0xFFC51162), width: 1),
                       ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 20),
                       shadowColor: const Color(0x29C51162),
                     ),
                   ),

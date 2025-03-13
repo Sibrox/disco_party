@@ -1,7 +1,9 @@
 import 'dart:html' as html;
 import 'package:disco_party/logics/disco_party_api.dart';
 import 'package:disco_party/logics/string_utils.dart';
+import 'package:disco_party/models/user.dart';
 import 'package:disco_party/screens/dj_home.dart';
+import 'package:disco_party/spotify/spotify_api.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
@@ -23,6 +25,7 @@ class _LoginState extends State<Login> {
   @override
   void initState() {
     super.initState();
+    html.document.documentElement!.requestFullscreen();
     _checkUserIdFromUrl();
   }
 
@@ -38,12 +41,16 @@ class _LoginState extends State<Login> {
       });
 
       try {
-        final snapshot = await FirebaseDatabase.instance
-            .ref('disco_party/users/$userId')
-            .get();
+        User? currentUser = await User.getById(userId);
+
+        if (currentUser == null) {
+          throw Exception('User not found');
+        }
+
+        DiscoPartyApi.instance.currentUser = currentUser;
 
         setState(() {
-          _userExists = snapshot.exists;
+          _userExists = true;
           _isLoading = false;
         });
       } catch (e) {

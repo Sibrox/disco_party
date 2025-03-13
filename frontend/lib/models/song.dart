@@ -44,12 +44,13 @@ class Song {
     return total;
   }
 
-  bool hasUserVoted(String userId) {
-    return votes.containsKey(userId);
+  Future<bool> hasUserVoted(String userId) async {
+    Song? updatedSong = await SongService.instance.getSong(id);
+    return updatedSong?.votes.containsKey(userId) ?? false;
   }
 
-  int? getUserVote(String userId) {
-    if (!hasUserVoted(userId)) return null;
+  Future<int?> getUserVote(String userId) async {
+    if (!(await hasUserVoted(userId))) return null;
     return votes[userId] as int;
   }
 
