@@ -23,7 +23,9 @@ class _SearchWidgetState extends State<SearchWidget> {
   }
 
   Future<void> _performSearch(String query) async {
-    widget.onToggleSearch();
+    if (_searchResults.isEmpty) {
+      widget.onToggleSearch();
+    }
 
     await Future.delayed(const Duration(milliseconds: 300), () {});
 
