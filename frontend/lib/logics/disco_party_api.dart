@@ -59,8 +59,11 @@ class DiscoPartyApi {
 
   Future<bool> voteSong(SpotifySong info, int value) async {
     try {
+
       currentUser = await User.getById(currentUser!.id);
-      if (currentUser == null) {
+      String? djID = await SongService.instance.getDJBySongID(songID: info.id);
+
+      if (currentUser == null || (currentUser!.id == djID)) {
         return false;
       }
 
@@ -85,4 +88,5 @@ class DiscoPartyApi {
       return false;
     }
   }
+
 }

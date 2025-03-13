@@ -25,7 +25,7 @@ class _LoginState extends State<Login> {
   @override
   void initState() {
     super.initState();
-    html.document.documentElement!.requestFullscreen();
+
     _checkUserIdFromUrl();
   }
 

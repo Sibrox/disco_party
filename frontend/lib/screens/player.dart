@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import 'package:disco_party/firebase/song_service.dart';
 import 'package:disco_party/logics/disco_party_api.dart';
+import 'package:disco_party/models/song.dart';
 import 'package:disco_party/spotify/spotify_api.dart';
 import 'package:disco_party/spotify/spotify_song.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class Player extends StatefulWidget {
@@ -13,7 +16,10 @@ class Player extends StatefulWidget {
 }
 
 class PlayerState extends State<Player> {
-  SpotifySong? _currentSong;
+  SpotifySong? _currentInfo;
+  bool _alreadyVoted = false;
+  bool _isYourSong = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -34,13 +40,13 @@ class PlayerState extends State<Player> {
     _progressTimer?.cancel();
 
     _progressTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_currentSong != null && mounted) {
+      if (_currentInfo != null && mounted) {
         setState(() {
-          _currentSong = _currentSong!.copyWith(
-            progressMs: _currentSong!.progressMs + 1000,
+          _currentInfo = _currentInfo!.copyWith(
+            progressMs: _currentInfo!.progressMs + 1000,
           );
 
-          if (_currentSong!.progressMs >= _currentSong!.durationsMs) {
+          if (_currentInfo!.progressMs >= _currentInfo!.durationsMs) {
             timer.cancel();
             loadCurrentSong();
           }
@@ -58,14 +64,23 @@ class PlayerState extends State<Player> {
   void loadCurrentSong() async {
     _progressTimer?.cancel();
 
-    SpotifySong song = await SpotifyApi.player();
+    SpotifySong info = await SpotifyApi.player();
+    Song? song = await SongService.instance.getSong(info.id);
+    bool alreadyVoted = song != null &&
+        await song.hasUserVoted(DiscoPartyApi.instance.currentUser!.id);
+    bool isYourSong =
+        song != null && DiscoPartyApi.instance.currentUser!.id == song.userID;
+    print("AlreadyVoted: $alreadyVoted isYourSong:$isYourSong");
+
     setState(() {
-      _currentSong = song;
+      _currentInfo = info;
+      _alreadyVoted = alreadyVoted;
+      _isYourSong = isYourSong;
     });
 
     _startProgressTimer();
 
-    Future.delayed(Duration(milliseconds: song.durationsMs - song.progressMs),
+    Future.delayed(Duration(milliseconds: info.durationsMs - info.progressMs),
         () {
       if (mounted) {
         loadCurrentSong();
@@ -82,7 +97,7 @@ class PlayerState extends State<Player> {
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              value: _currentSong!.progressMs / _currentSong!.durationsMs,
+              value: _currentInfo!.progressMs / _currentInfo!.durationsMs,
               backgroundColor: Color(0xFFFF80AB).withOpacity(0.2),
               valueColor:
                   const AlwaysStoppedAnimation<Color>(Color(0xFFC51162)),
@@ -94,14 +109,14 @@ class PlayerState extends State<Player> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                _formatDuration(_currentSong!.progressMs),
+                _formatDuration(_currentInfo!.progressMs),
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey[700],
                 ),
               ),
               Text(
-                '-${_formatDuration(_currentSong!.durationsMs - _currentSong!.progressMs)}',
+                '-${_formatDuration(_currentInfo!.durationsMs - _currentInfo!.progressMs)}',
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey[700],
@@ -114,11 +129,105 @@ class PlayerState extends State<Player> {
     );
   }
 
+  Widget bottomVoteBar() {
+    if (_alreadyVoted) {
+      return const Center(
+        child: Text("Non puoi votare due volte la stessa canzone, schifoso!"),
+      );
+    } else if (_isYourSong) {
+      return const Center(
+        child: Text("Non puoi votare la tua canzone, schifoso!"),
+      );
+    } else {
+      return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        ElevatedButton.icon(
+          onPressed: () async {
+            setState(() {
+              _isLoading = true;
+            });
+            bool success =
+                await DiscoPartyApi.instance.voteSong(_currentInfo!, -1);
+            if (success) {
+              setState(() {
+                _alreadyVoted = true;
+              });
+            }
+            setState(() {
+              _isLoading = false;
+            });
+          },
+          icon: const Icon(
+            Icons.thumb_down,
+            color: Color(0xFFC51162),
+            size: 24,
+          ),
+          label: const Text(
+            'Oh no..',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFFC51162),
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: const Color(0xFFC51162),
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            shape: const RoundedRectangleBorder(
+              side: BorderSide(color: Color(0xFFC51162), width: 1),
+            ),
+            shadowColor: Colors.transparent,
+          ),
+        ),
+        const SizedBox(width: 16),
+        ElevatedButton.icon(
+          onPressed: () async {
+            setState(() {
+              _isLoading = true;
+            });
+            bool success =
+                await DiscoPartyApi.instance.voteSong(_currentInfo!, 1);
+
+            if (success) {
+              setState(() {
+                _alreadyVoted = true;
+              });
+            }
+
+            setState(() {
+              _isLoading = false;
+            });
+          },
+          icon: const Icon(Icons.thumb_up, color: Colors.white, size: 24),
+          label: const Text(
+            'Mi piace!',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Colors.white,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFC51162),
+            foregroundColor: Colors.white,
+            elevation: 0,
+            shape: const RoundedRectangleBorder(
+              side: BorderSide(color: Color(0xFFC51162), width: 1),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            shadowColor: const Color(0x29C51162),
+          ),
+        ),
+      ]);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(10),
-      child: _currentSong == null
+      child: _currentInfo == null
           ? const CircularProgressIndicator()
           : Column(
               children: [
@@ -132,7 +241,7 @@ class PlayerState extends State<Player> {
                         offset: const Offset(0, 5),
                       ),
                     ]),
-                    child: Image.network(_currentSong!.image),
+                    child: Image.network(_currentInfo!.image),
                   ),
                 ),
                 progressIndicator(),
@@ -147,7 +256,7 @@ class PlayerState extends State<Player> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  _currentSong!.name,
+                  _currentInfo!.name,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 22,
@@ -168,7 +277,7 @@ class PlayerState extends State<Player> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      _currentSong!.artist,
+                      _currentInfo!.artist,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -190,7 +299,7 @@ class PlayerState extends State<Player> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      _currentSong!.album,
+                      _currentInfo!.album,
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[600],
@@ -201,67 +310,9 @@ class PlayerState extends State<Player> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      DiscoPartyApi.instance.voteSong(_currentSong!, -1);
-                    },
-                    icon: const Icon(
-                      Icons.thumb_down,
-                      color: Color(0xFFC51162),
-                      size: 24,
-                    ),
-                    label: const Text(
-                      'Oh no..',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFFC51162),
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: const Color(0xFFC51162),
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 20),
-                      shape: const RoundedRectangleBorder(
-                        side: const BorderSide(
-                            color: Color(0xFFC51162), width: 1),
-                      ),
-                      shadowColor: Colors.transparent,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      print("HERE");
-                      DiscoPartyApi.instance.voteSong(_currentSong!, 1);
-                    },
-                    icon: const Icon(Icons.thumb_up,
-                        color: Colors.white, size: 24),
-                    label: const Text(
-                      'Mi piace!',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFC51162),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: const RoundedRectangleBorder(
-                        side: const BorderSide(
-                            color: Color(0xFFC51162), width: 1),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 20),
-                      shadowColor: const Color(0x29C51162),
-                    ),
-                  ),
-                ]),
+                _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : bottomVoteBar(),
                 const SizedBox(
                   height: 16,
                 ),
