@@ -1,21 +1,21 @@
 import 'dart:convert';
 
-import 'package:disco_party/spotify/spotify_song.dart';
+import 'package:disco_party/spotify/models/spotify_info.dart';
 import 'package:http/http.dart' as http;
 
 class SpotifyApi {
   static const String baseUrl = 'http://localhost:8080';
 
-  static Future<SpotifySong> player() async {
+  static Future<SpotifyInfo> player() async {
     var response = await http.get(Uri.parse('$baseUrl/player'));
-    return SpotifySong.fromJson(jsonDecode(response.body));
+    return SpotifyInfo.fromJson(jsonDecode(response.body));
   }
 
   static searchSongByTitle(String query) {
     var url = '$baseUrl/search?q=$query';
     return http.get(Uri.parse(url)).then((response) {
       var trackJson = jsonDecode(response.body) as List<dynamic>;
-      return trackJson.map((track) => SpotifySong.fromJson(track)).toList();
+      return trackJson.map((track) => SpotifyInfo.fromJson(track)).toList();
     });
   }
 

@@ -4,7 +4,7 @@ import 'package:disco_party/firebase/song_service.dart';
 import 'package:disco_party/logics/disco_party_api.dart';
 import 'package:disco_party/models/song.dart';
 import 'package:disco_party/spotify/spotify_api.dart';
-import 'package:disco_party/spotify/spotify_song.dart';
+import 'package:disco_party/spotify/models/spotify_info.dart';
 import 'package:flutter/material.dart';
 
 class Player extends StatefulWidget {
@@ -15,7 +15,7 @@ class Player extends StatefulWidget {
 }
 
 class PlayerState extends State<Player> {
-  SpotifySong? _currentInfo;
+  SpotifyInfo? _currentInfo;
   bool _alreadyVoted = false;
   bool _isYourSong = false;
   bool _isLoading = false;
@@ -63,7 +63,7 @@ class PlayerState extends State<Player> {
   void loadCurrentSong() async {
     _progressTimer?.cancel();
 
-    SpotifySong info = await SpotifyApi.player();
+    SpotifyInfo info = await SpotifyApi.player();
     Song? song = await SongService.instance.getSong(info.id);
     bool alreadyVoted = song != null &&
         await song.hasUserVoted(DiscoPartyApi.instance.currentUser!.id);

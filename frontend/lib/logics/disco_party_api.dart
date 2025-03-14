@@ -3,7 +3,7 @@ import 'package:disco_party/firebase/user_service.dart';
 import 'package:disco_party/models/user.dart';
 import 'package:disco_party/models/song.dart';
 import 'package:disco_party/spotify/spotify_api.dart';
-import 'package:disco_party/spotify/spotify_song.dart';
+import 'package:disco_party/spotify/models/spotify_info.dart';
 
 class DiscoPartyApi {
   static final DiscoPartyApi instance = DiscoPartyApi._internal();
@@ -29,7 +29,7 @@ class DiscoPartyApi {
     throw Exception('Failed to get or create user');
   }
 
-  Future<bool> addSongToQueue(SpotifySong spotifySong) async {
+  Future<bool> addSongToQueue(SpotifyInfo spotifySong) async {
     try {
       currentUser = await User.getById(currentUser!.id);
       if (currentUser == null) {
@@ -57,7 +57,7 @@ class DiscoPartyApi {
     }
   }
 
-  Future<bool> voteSong(SpotifySong info, int value) async {
+  Future<bool> voteSong(SpotifyInfo info, int value) async {
     try {
       currentUser = await User.getById(currentUser!.id);
       String? djID = await SongService.instance.getDJBySongID(songID: info.id);

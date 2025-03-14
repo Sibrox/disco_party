@@ -1,9 +1,9 @@
-import 'package:disco_party/spotify/spotify_song.dart';
+import 'package:disco_party/spotify/models/spotify_info.dart';
 import 'package:disco_party/firebase/song_service.dart';
 
 class Song {
   String userID;
-  SpotifySong info;
+  SpotifyInfo info;
   Map<dynamic, dynamic> votes;
 
   static String table = 'songs';
@@ -29,7 +29,7 @@ class Song {
   static Song fromJson(Map<dynamic, dynamic> json) {
     return Song(
       userID: json['userID'],
-      info: SpotifySong.fromJson(json['info']),
+      info: SpotifyInfo.fromJson(json['info']),
       votes: json.containsKey('votes') ? json['votes'] : {},
     );
   }
@@ -53,7 +53,7 @@ class Song {
     return votes[userId] as int;
   }
 
-  static Future<Song> addToQueue(String userId, SpotifySong spotifySong) async {
+  static Future<Song> addToQueue(String userId, SpotifyInfo spotifySong) async {
     final song = Song(userID: userId, info: spotifySong);
     return await SongService.instance.addSong(song);
   }

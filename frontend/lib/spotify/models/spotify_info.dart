@@ -1,4 +1,4 @@
-class SpotifySong {
+class SpotifyInfo {
   final String name;
   final String artist;
   final String album;
@@ -10,7 +10,7 @@ class SpotifySong {
 
   String get id => uri.split(':')[2];
 
-  SpotifySong({
+  SpotifyInfo({
     required this.name,
     required this.artist,
     required this.album,
@@ -19,7 +19,7 @@ class SpotifySong {
     this.durationsMs = 0,
     this.progressMs = 0,
   });
-  SpotifySong copyWith({
+  SpotifyInfo copyWith({
     String? name,
     String? artist,
     String? album,
@@ -28,7 +28,7 @@ class SpotifySong {
     int? progressMs,
     int? durationsMs,
   }) {
-    return SpotifySong(
+    return SpotifyInfo(
       name: name ?? this.name,
       artist: artist ?? this.artist,
       album: album ?? this.album,
@@ -39,8 +39,8 @@ class SpotifySong {
     );
   }
 
-  factory SpotifySong.fromJson(Map<dynamic, dynamic> json) {
-    return SpotifySong(
+  factory SpotifyInfo.fromJson(Map<dynamic, dynamic> json) {
+    return SpotifyInfo(
       name: json['name'],
       artist: json['artist'],
       album: json['album'],

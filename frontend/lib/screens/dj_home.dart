@@ -1,5 +1,5 @@
 import 'package:disco_party/screens/current_user_widget.dart';
-import 'package:disco_party/screens/player.dart';
+import 'package:disco_party/spotify/widgets/player.dart';
 import 'package:disco_party/spotify/widgets/search_widget.dart';
 import 'package:flutter/material.dart';
 

@@ -2,7 +2,7 @@ import 'package:disco_party/firebase/song_service.dart';
 import 'package:disco_party/logics/disco_party_api.dart';
 import 'package:disco_party/models/song.dart';
 import 'package:flutter/material.dart';
-import 'package:disco_party/spotify/spotify_song.dart';
+import 'package:disco_party/spotify/models/spotify_info.dart';
 import 'package:disco_party/spotify/spotify_api.dart';
 
 class SearchWidget extends StatefulWidget {
@@ -15,7 +15,7 @@ class SearchWidget extends StatefulWidget {
 
 class _SearchWidgetState extends State<SearchWidget> {
   final TextEditingController _searchController = TextEditingController();
-  List<SpotifySong> _searchResults = [];
+  List<SpotifyInfo> _searchResults = [];
   bool _isLoading = false;
 
   @override
@@ -24,7 +24,7 @@ class _SearchWidgetState extends State<SearchWidget> {
     super.dispose();
   }
 
-  Future<void> _confirmDialog(SpotifySong song, List<String> messages) async {
+  Future<void> _confirmDialog(SpotifyInfo song, List<String> messages) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -69,7 +69,7 @@ class _SearchWidgetState extends State<SearchWidget> {
     );
   }
 
-  void tryToAddSongInQueue(SpotifySong info) async {
+  void tryToAddSongInQueue(SpotifyInfo info) async {
     // check if song is already in queue
     // if not, add it
     // else show error message
