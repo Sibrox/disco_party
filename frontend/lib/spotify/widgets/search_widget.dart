@@ -160,7 +160,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                       const BorderSide(color: Color(0xFFFCE4EC), width: 1),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(0),
                   borderSide:
                       const BorderSide(color: Color(0xFFC51162), width: 2),
                 ),
