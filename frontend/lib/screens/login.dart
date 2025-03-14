@@ -3,8 +3,6 @@ import 'package:disco_party/logics/disco_party_api.dart';
 import 'package:disco_party/logics/string_utils.dart';
 import 'package:disco_party/models/user.dart';
 import 'package:disco_party/screens/dj_home.dart';
-import 'package:disco_party/spotify/spotify_api.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class Login extends StatefulWidget {
@@ -20,7 +18,6 @@ class _LoginState extends State<Login> {
   String? _userId;
   final TextEditingController _usernameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final DiscoPartyApi _api = DiscoPartyApi();
 
   @override
   void initState() {
@@ -29,7 +26,6 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> _checkUserIdFromUrl() async {
-    // Get the URL and parse it
     final uri = Uri.parse(html.window.location.href);
     final queryParams = uri.queryParameters;
 
@@ -43,7 +39,7 @@ class _LoginState extends State<Login> {
         User? currentUser = await User.getById(userId);
 
         if (currentUser == null) {
-          throw Exception('User not found');
+          throw ("User not found");
         }
 
         DiscoPartyApi.instance.currentUser = currentUser;
@@ -80,7 +76,7 @@ class _LoginState extends State<Login> {
     try {
       final userId = _userId ?? StringUtils.generateUserId();
 
-      await _api.init(
+      await DiscoPartyApi.instance.init(
         userId: userId,
         userName: _usernameController.text.trim(),
       );

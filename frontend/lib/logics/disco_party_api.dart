@@ -16,7 +16,7 @@ class DiscoPartyApi {
   }
 
   Future<User> init({required String userId, String? userName}) async {
-    User? currentUser = await User.getById(userId);
+    currentUser = await User.getById(userId);
     if (currentUser == null && userName != null) {
       currentUser = await User.create(id: userId, name: userName);
     }
@@ -59,7 +59,6 @@ class DiscoPartyApi {
 
   Future<bool> voteSong(SpotifySong info, int value) async {
     try {
-
       currentUser = await User.getById(currentUser!.id);
       String? djID = await SongService.instance.getDJBySongID(songID: info.id);
 
@@ -88,5 +87,4 @@ class DiscoPartyApi {
       return false;
     }
   }
-
 }

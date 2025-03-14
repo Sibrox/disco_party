@@ -49,7 +49,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                 DiscoPartyApi().addSongToQueue(song);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Added "${song.name}" to queue'),
+                    content: Text('Hai aggiunto "${song.name}" in coda'),
                     backgroundColor: const Color(0xFFC51162),
                   ),
                 );
@@ -128,45 +128,49 @@ class _SearchWidgetState extends State<SearchWidget> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: 'Metti la tua musica!',
-              hintStyle: TextStyle(color: Colors.grey[400]),
-              prefixIcon: const Icon(
-                Icons.search,
-                color: Color(0xFFC51162),
-              ),
-              suffixIcon: IconButton(
-                icon: const Icon(
-                  Icons.close,
+            padding: const EdgeInsets.only(
+                top: 16.0, bottom: 16, left: 45, right: 45),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Metti la tua musica!',
+                hintStyle: TextStyle(color: Colors.grey[400]),
+                prefixIcon: const Icon(
+                  Icons.search,
                   color: Color(0xFFC51162),
                 ),
-                onPressed: () {
-                  _searchController.clear();
-                  setState(() {
-                    widget.onToggleSearch(close: true);
-                    _searchResults = [];
-                  });
-                },
+                suffixIcon: IconButton(
+                  icon: const Icon(
+                    Icons.close,
+                    color: Color(0xFFC51162),
+                  ),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() {
+                      widget.onToggleSearch(close: true);
+                      _searchResults = [];
+                    });
+                  },
+                ),
+                filled: true,
+                fillColor: Colors.white,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(0),
+                  borderSide:
+                      const BorderSide(color: Color(0xFFFCE4EC), width: 1),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide:
+                      const BorderSide(color: Color(0xFFC51162), width: 2),
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               ),
-              filled: true,
-              fillColor: Colors.white,
-              enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFFFCE4EC), width: 1.5),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide:
-                    const BorderSide(color: Color(0xFFC51162), width: 1.5),
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 12),
-            ),
-            onSubmitted: _performSearch,
-            textInputAction: TextInputAction.search,
-            cursorColor: const Color(0xFFC51162),
-          ),
-        ),
+              onSubmitted: _performSearch,
+              textInputAction: TextInputAction.search,
+              cursorColor: const Color(0xFFC51162),
+            )),
         if (_isLoading)
           const Padding(
             padding: EdgeInsets.all(32.0),
