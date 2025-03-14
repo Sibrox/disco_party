@@ -5,7 +5,6 @@ import 'package:disco_party/logics/disco_party_api.dart';
 import 'package:disco_party/models/song.dart';
 import 'package:disco_party/spotify/spotify_api.dart';
 import 'package:disco_party/spotify/spotify_song.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class Player extends StatefulWidget {
@@ -98,7 +97,7 @@ class PlayerState extends State<Player> {
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: _currentInfo!.progressMs / _currentInfo!.durationsMs,
-              backgroundColor: Color(0xFFFF80AB).withOpacity(0.2),
+              backgroundColor: const Color(0xFFFF80AB).withOpacity(0.2),
               valueColor:
                   const AlwaysStoppedAnimation<Color>(Color(0xFFC51162)),
               minHeight: 10,
@@ -132,11 +131,35 @@ class PlayerState extends State<Player> {
   Widget bottomVoteBar() {
     if (_alreadyVoted) {
       return const Center(
-        child: Text("Non puoi votare due volte la stessa canzone, schifoso!"),
-      );
+          child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.check,
+            color: Color(0xFFC51162),
+            size: 24,
+          ),
+          SizedBox(width: 8),
+          Text(
+            'Hai già votato!',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFFC51162),
+            ),
+          ),
+        ],
+      ));
     } else if (_isYourSong) {
       return const Center(
-        child: Text("Non puoi votare la tua canzone, schifoso!"),
+        child: Text(
+          'Questo è un tuo brano!',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFFC51162),
+          ),
+        ),
       );
     } else {
       return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -190,6 +213,12 @@ class PlayerState extends State<Player> {
                 await DiscoPartyApi.instance.voteSong(_currentInfo!, 1);
 
             if (success) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Hai votato con successo!'),
+                  backgroundColor: const Color(0xFFC51162),
+                ),
+              );
               setState(() {
                 _alreadyVoted = true;
               });
