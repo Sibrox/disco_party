@@ -2,7 +2,7 @@ import 'package:disco_party/firebase/song_service.dart';
 import 'package:disco_party/logics/disco_party_api.dart';
 import 'package:disco_party/models/song.dart';
 import 'package:flutter/material.dart';
-import 'package:disco_party/spotify/spotify_song.dart';
+import 'package:disco_party/spotify/models/spotify_info.dart';
 import 'package:disco_party/spotify/spotify_api.dart';
 
 class SearchWidget extends StatefulWidget {
@@ -15,7 +15,7 @@ class SearchWidget extends StatefulWidget {
 
 class _SearchWidgetState extends State<SearchWidget> {
   final TextEditingController _searchController = TextEditingController();
-  List<SpotifySong> _searchResults = [];
+  List<SpotifyInfo> _searchResults = [];
   bool _isLoading = false;
 
   @override
@@ -24,7 +24,7 @@ class _SearchWidgetState extends State<SearchWidget> {
     super.dispose();
   }
 
-  Future<void> _confirmDialog(SpotifySong song, List<String> messages) async {
+  Future<void> _confirmDialog(SpotifyInfo song, List<String> messages) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -49,7 +49,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                 DiscoPartyApi().addSongToQueue(song);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Added "${song.name}" to queue'),
+                    content: Text('Hai aggiunto "${song.name}" in coda'),
                     backgroundColor: const Color(0xFFC51162),
                   ),
                 );
@@ -69,7 +69,7 @@ class _SearchWidgetState extends State<SearchWidget> {
     );
   }
 
-  void tryToAddSongInQueue(SpotifySong info) async {
+  void tryToAddSongInQueue(SpotifyInfo info) async {
     // check if song is already in queue
     // if not, add it
     // else show error message
@@ -128,45 +128,49 @@ class _SearchWidgetState extends State<SearchWidget> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: 'Metti la tua musica!',
-              hintStyle: TextStyle(color: Colors.grey[400]),
-              prefixIcon: const Icon(
-                Icons.search,
-                color: Color(0xFFC51162),
-              ),
-              suffixIcon: IconButton(
-                icon: const Icon(
-                  Icons.close,
+            padding: const EdgeInsets.only(
+                top: 16.0, bottom: 16, left: 45, right: 45),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Metti la tua musica!',
+                hintStyle: TextStyle(color: Colors.grey[400]),
+                prefixIcon: const Icon(
+                  Icons.search,
                   color: Color(0xFFC51162),
                 ),
-                onPressed: () {
-                  _searchController.clear();
-                  setState(() {
-                    widget.onToggleSearch(close: true);
-                    _searchResults = [];
-                  });
-                },
+                suffixIcon: IconButton(
+                  icon: const Icon(
+                    Icons.close,
+                    color: Color(0xFFC51162),
+                  ),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() {
+                      widget.onToggleSearch(close: true);
+                      _searchResults = [];
+                    });
+                  },
+                ),
+                filled: true,
+                fillColor: Colors.white,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(0),
+                  borderSide:
+                      const BorderSide(color: Color(0xFFFCE4EC), width: 1),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(0),
+                  borderSide:
+                      const BorderSide(color: Color(0xFFC51162), width: 2),
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               ),
-              filled: true,
-              fillColor: Colors.white,
-              enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFFFCE4EC), width: 1.5),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide:
-                    const BorderSide(color: Color(0xFFC51162), width: 1.5),
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 12),
-            ),
-            onSubmitted: _performSearch,
-            textInputAction: TextInputAction.search,
-            cursorColor: const Color(0xFFC51162),
-          ),
-        ),
+              onSubmitted: _performSearch,
+              textInputAction: TextInputAction.search,
+              cursorColor: const Color(0xFFC51162),
+            )),
         if (_isLoading)
           const Padding(
             padding: EdgeInsets.all(32.0),
