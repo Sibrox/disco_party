@@ -64,12 +64,12 @@ class _DjHomeState extends State<DjHome> with SingleTickerProviderStateMixin {
         child: SafeArea(
           child: Stack(
             children: [
-              Positioned(
+              const Positioned(
                   left: 0,
                   right: 0,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    child: Container(),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: CurrentUserWidget(),
                   )),
               Positioned(
                 left: 0,
@@ -116,7 +116,7 @@ class _DjHomeState extends State<DjHome> with SingleTickerProviderStateMixin {
                           child: Column(
                             children: [
                               // Search widget in an expanded container
-                              SizedBox(
+                              const SizedBox(
                                 height: 10,
                               ),
                               Expanded(

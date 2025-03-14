@@ -1,31 +1,46 @@
+import 'dart:async';
+
 import 'package:disco_party/logics/disco_party_api.dart' show DiscoPartyApi;
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class CurrentUserWidget extends StatefulWidget {
-  const CurrentUserWidget({Key? key}) : super(key: key);
+  const CurrentUserWidget({super.key});
 
   @override
   State<CurrentUserWidget> createState() => _CurrentUserWidgetState();
 }
 
 class _CurrentUserWidgetState extends State<CurrentUserWidget> {
+  StreamSubscription<DatabaseEvent>? creditSub;
+
+  @override
+  void initState() {
+    creditSub = FirebaseDatabase.instance
+        .ref('disco_party/users')
+        .child(DiscoPartyApi.instance.currentUser?.id ?? '')
+        .child('credits')
+        .onValue
+        .listen((event) {
+      DiscoPartyApi.instance.currentUser?.credits = event.snapshot.value as int;
+      setState(() {});
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    creditSub?.cancel();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: 100,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-            spreadRadius: 0,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Column(
@@ -37,14 +52,14 @@ class _CurrentUserWidgetState extends State<CurrentUserWidget> {
                   const Icon(
                     Icons.person,
                     size: 14,
-                    color: Colors.black,
+                    color: Colors.white,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     DiscoPartyApi().currentUser?.name ?? 'Guest',
                     style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.black87,
+                      fontSize: 14,
+                      color: Colors.white,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -53,16 +68,16 @@ class _CurrentUserWidgetState extends State<CurrentUserWidget> {
               Row(
                 children: [
                   const Icon(
-                    Icons.credit_card,
+                    Icons.star,
                     size: 14,
-                    color: Color(0xFFC51162),
+                    color: Colors.white,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     '${DiscoPartyApi().currentUser?.credits ?? 0} credit(s)',
                     style: const TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFFC51162),
+                      fontSize: 14,
+                      color: Colors.white,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
