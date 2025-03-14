@@ -7,6 +7,7 @@ import 'package:disco_party/spotify/spotify_api.dart';
 import 'package:disco_party/spotify/spotify_song.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class Player extends StatefulWidget {
   const Player({super.key});
@@ -20,6 +21,7 @@ class PlayerState extends State<Player> {
   bool _alreadyVoted = false;
   bool _isYourSong = false;
   bool _isLoading = false;
+  bool _thereIsNoSong = false;
 
   @override
   void initState() {
@@ -62,29 +64,50 @@ class PlayerState extends State<Player> {
   }
 
   void loadCurrentSong() async {
+    bool alreadyVoted = false;
+    bool isYourSong = false;
+    bool thereIsNoSong = false;
+
+    SpotifySong mockSong = SpotifySong(
+        name: "Mock Song",
+        artist: "Mock Artist",
+        album: "Mock Album",
+        image: "https://i.scdn.co/image/ab67616d0000b273",
+        uri: "spotify:track:1",
+        durationsMs: 10000,
+        progressMs: 0);
+
     _progressTimer?.cancel();
 
-    SpotifySong info = await SpotifyApi.player();
-    Song? song = await SongService.instance.getSong(info.id);
-    bool alreadyVoted = song != null &&
-        await song.hasUserVoted(DiscoPartyApi.instance.currentUser!.id);
-    bool isYourSong =
-        song != null && DiscoPartyApi.instance.currentUser!.id == song.userID;
-    print("AlreadyVoted: $alreadyVoted isYourSong:$isYourSong");
-
     setState(() {
-      _currentInfo = info;
-      _alreadyVoted = alreadyVoted;
-      _isYourSong = isYourSong;
+      _isLoading = true;
     });
 
-    _startProgressTimer();
+    SpotifySong? info = await SpotifyApi.player();
 
-    Future.delayed(Duration(milliseconds: info.durationsMs - info.progressMs),
-        () {
-      if (mounted) {
-        loadCurrentSong();
-      }
+    if (info != null) {
+      Song? song = await SongService.instance.getSong(info.id);
+      alreadyVoted = song != null &&
+          await song.hasUserVoted(DiscoPartyApi.instance.currentUser!.id);
+      isYourSong =
+          song != null && DiscoPartyApi.instance.currentUser!.id == song.userID;
+      thereIsNoSong = true;
+      _startProgressTimer();
+
+      Future.delayed(Duration(milliseconds: info.durationsMs - info.progressMs),
+          () {
+        if (mounted) {
+          loadCurrentSong();
+        }
+      });
+    }
+
+    setState(() {
+      _currentInfo = info ?? mockSong;
+      _alreadyVoted = alreadyVoted;
+      _isYourSong = isYourSong;
+      _thereIsNoSong = thereIsNoSong;
+      _isLoading = false;
     });
   }
 
@@ -225,99 +248,105 @@ class PlayerState extends State<Player> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      child: _currentInfo == null
-          ? const CircularProgressIndicator()
-          : Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(36),
-                  child: Container(
-                    decoration: BoxDecoration(boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFC51162).withOpacity(0.2),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ]),
-                    child: Image.network(_currentInfo!.image),
-                  ),
-                ),
-                progressIndicator(),
-                const Text(
-                  'STAI ASCOLTANDO',
-                  style: TextStyle(
-                    fontSize: 12,
-                    letterSpacing: 1.2,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF9E9E9E),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  _currentInfo!.name,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF212121),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.person,
-                      size: 16,
-                      color: Color(0xFFC51162),
+    return _currentInfo == null
+        ? Container()
+        : Skeletonizer(
+            enabled: !_thereIsNoSong,
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(36),
+                    child: Container(
+                      decoration: BoxDecoration(boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFC51162).withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ]),
+                      child: Skeleton.replace(
+                          height: 400,
+                          width: 400,
+                          child: Image.network(_currentInfo!.image)),
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      _currentInfo!.artist,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFFC51162),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.album,
-                      size: 14,
+                  ),
+                  progressIndicator(),
+                  const Text(
+                    'STAI ASCOLTANDO',
+                    style: TextStyle(
+                      fontSize: 12,
+                      letterSpacing: 1.2,
+                      fontWeight: FontWeight.w500,
                       color: Color(0xFF9E9E9E),
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      _currentInfo!.album,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    _currentInfo!.name,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF212121),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : bottomVoteBar(),
-                const SizedBox(
-                  height: 16,
-                ),
-              ],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.person,
+                        size: 16,
+                        color: Color(0xFFC51162),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        _currentInfo!.artist,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFFC51162),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.album,
+                        size: 14,
+                        color: Color(0xFF9E9E9E),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        _currentInfo!.album,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : bottomVoteBar(),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                ],
+              ),
             ),
-    );
+          );
   }
 }
