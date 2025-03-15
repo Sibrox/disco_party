@@ -211,6 +211,51 @@ class _SearchWidgetState extends State<SearchWidget> {
                       // Add button
                       ElevatedButton.icon(
                         onPressed: () async {
+                          if (DiscoPartyApi.instance.currentUser!.credits < 5) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Row(
+                                  children: [
+                                    Icon(Icons.error_outline,
+                                        color: Colors.white),
+                                    SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            'Crediti insufficienti',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            'Hai bisogno di 5 crediti per aggiungere questa canzone',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                backgroundColor: Colors.red.shade700,
+                                duration: const Duration(seconds: 3),
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            );
+                            Navigator.of(context).pop();
+                            return;
+                          }
+
                           DiscoPartyApi().addSongToQueue(song);
 
                           ScaffoldMessenger.of(context).showSnackBar(

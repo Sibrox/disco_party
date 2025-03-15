@@ -10,7 +10,7 @@ class Song {
 
   String get id => info.id;
 
-  Song({required this.userID, required this.info, this.votes = const {}});
+  Song({this.userID = 'gallottino', required this.info, this.votes = const {}});
 
   Map<String, dynamic> toJson() {
     var baseJson = {
