@@ -35,6 +35,9 @@ class UserService {
   }
 
   Future<int> addCredits(String userId, int amount) async {
+    if (amount <= 0) {
+      throw Exception('Amount must be greater than 0');
+    }
     try {
       final DataSnapshot snapshot =
           await _dbRef.child(userId).child('credits').get();
@@ -45,6 +48,33 @@ class UserService {
         await _dbRef.child(userId).child('credits').set(newCredits);
         return newCredits;
       }
+      throw Exception('User credits not found');
+    } catch (e) {
+      throw Exception('Failed to add credits: $e');
+    }
+  }
+
+  Future<int> payCredits(String userId, int amount) async {
+    if (amount <= 0) {
+      throw Exception('Amount must be greater than 0');
+    }
+
+    try {
+      final DataSnapshot snapshot =
+          await _dbRef.child(userId).child('credits').get();
+
+      if (snapshot.exists && snapshot.value != null) {
+        final int currentCredits = snapshot.value as int;
+
+        if (currentCredits < amount) {
+          throw ('Not enough credits');
+        }
+
+        final int newCredits = currentCredits - amount;
+        await _dbRef.child(userId).child('credits').set(newCredits);
+        return newCredits;
+      }
+
       throw Exception('User credits not found');
     } catch (e) {
       throw Exception('Failed to add credits: $e');

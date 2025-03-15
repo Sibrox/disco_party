@@ -47,7 +47,7 @@ class DiscoPartyApi {
         info: spotifySong,
       );
 
-      UserService.instance.addCredits(currentUser!.id, -1);
+      UserService.instance.payCredits(currentUser!.id, 5);
       SongService.instance.addSong(song);
 
       return true;
