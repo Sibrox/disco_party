@@ -131,8 +131,8 @@ class _PlayerState extends State<Player> {
         enabled: showSkeleton,
         effect: PulseEffect(
           duration: const Duration(milliseconds: 2000),
-          from: Colors.white.withAlpha(80),
-          to: const Color(0xFFC51162).withValues(alpha: 0.8),
+          from: Colors.white.withAlpha(100),
+          to: Colors.white.withAlpha(0),
         ),
         child: Column(children: [
           Padding(
@@ -146,8 +146,8 @@ class _PlayerState extends State<Player> {
                   ),
                 ]),
                 child: Skeleton.replace(
-                  height: 400,
-                  width: 400,
+                  height: 250,
+                  width: 250,
                   child: showSkeleton ? Container() : Image.network(info.image),
                 )),
           ),
@@ -166,10 +166,11 @@ class _PlayerState extends State<Player> {
           )),
           showSkeleton
               ? LoadingAnimationWidget.staggeredDotsWave(
-                  color: const Color(0xFFC51162), size: 30)
+                  color: const Color(0xFFC51162), size: 40)
               : Container(),
           const SizedBox(height: 6),
-          Text(
+          Skeleton.keep(
+              child: Text(
             showSkeleton ? '' : info.name,
             textAlign: TextAlign.center,
             style: const TextStyle(
@@ -179,7 +180,7 @@ class _PlayerState extends State<Player> {
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-          ),
+          )),
           showSkeleton ? Container() : const SizedBox(height: 4),
           const SizedBox(height: 4),
           Skeleton.ignore(

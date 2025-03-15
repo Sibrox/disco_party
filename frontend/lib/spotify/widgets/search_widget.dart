@@ -124,12 +124,11 @@ class _SearchWidgetState extends State<SearchWidget> {
     return Column(
       children: [
         Padding(
-            padding: const EdgeInsets.only(
-                top: 16.0, bottom: 16, left: 45, right: 45),
+            padding: const EdgeInsets.all(8),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Metti la tua musica!',
+                hintText: 'Aggiungi in coda',
                 hintStyle: TextStyle(color: Colors.grey[400]),
                 prefixIcon: const Icon(
                   Icons.search,
@@ -169,7 +168,7 @@ class _SearchWidgetState extends State<SearchWidget> {
             )),
         if (_isLoading)
           Padding(
-              padding: EdgeInsets.all(32.0),
+              padding: const EdgeInsets.all(32.0),
               child: LoadingAnimationWidget.staggeredDotsWave(
                   color: const Color(0xFFC51162), size: 30))
         else if (_searchResults.isNotEmpty)
