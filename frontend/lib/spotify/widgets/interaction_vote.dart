@@ -3,6 +3,7 @@ import 'package:disco_party/logics/disco_party_api.dart';
 import 'package:disco_party/models/song.dart';
 import 'package:disco_party/spotify/models/spotify_info.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class InteractionVote extends StatefulWidget {
   final SpotifyInfo? currentInfo;
@@ -63,9 +64,9 @@ class _InteractionVoteState extends State<InteractionVote> {
     }
 
     if (_checking) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return Center(
+          child: LoadingAnimationWidget.staggeredDotsWave(
+              color: const Color(0xFFC51162), size: 30));
     }
 
     if (_isAlredyVoted) {

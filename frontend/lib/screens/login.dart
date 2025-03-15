@@ -4,6 +4,7 @@ import 'package:disco_party/logics/string_utils.dart';
 import 'package:disco_party/models/user.dart';
 import 'package:disco_party/screens/dj_home.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -115,10 +116,10 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(
-          child: CircularProgressIndicator(),
-        ),
+            child: LoadingAnimationWidget.staggeredDotsWave(
+                color: const Color(0xFFC51162), size: 80)),
       );
     }
 

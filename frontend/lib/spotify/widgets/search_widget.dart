@@ -4,6 +4,7 @@ import 'package:disco_party/models/song.dart';
 import 'package:flutter/material.dart';
 import 'package:disco_party/spotify/models/spotify_info.dart';
 import 'package:disco_party/spotify/spotify_api.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class SearchWidget extends StatefulWidget {
   final Function onToggleSearch;
@@ -167,12 +168,10 @@ class _SearchWidgetState extends State<SearchWidget> {
               cursorColor: const Color(0xFFC51162),
             )),
         if (_isLoading)
-          const Padding(
-            padding: EdgeInsets.all(32.0),
-            child: CircularProgressIndicator(
-              color: Color(0xFFC51162),
-            ),
-          )
+          Padding(
+              padding: EdgeInsets.all(32.0),
+              child: LoadingAnimationWidget.staggeredDotsWave(
+                  color: const Color(0xFFC51162), size: 30))
         else if (_searchResults.isNotEmpty)
           Expanded(
             child: ListView.builder(
