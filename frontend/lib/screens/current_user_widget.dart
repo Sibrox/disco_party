@@ -37,51 +37,50 @@ class _CurrentUserWidgetState extends State<CurrentUserWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 100,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.1),
+        borderRadius: BorderRadius.only(
+          bottomRight: Radius.circular(16),
+        ),
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+          Row(
             children: [
-              Row(
-                children: [
-                  const Icon(
-                    Icons.person,
-                    size: 14,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    DiscoPartyApi().currentUser?.name ?? 'Guest',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+              const Icon(
+                Icons.person,
+                size: 14,
+                color: Colors.white,
               ),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.star,
-                    size: 14,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${DiscoPartyApi().currentUser?.credits ?? 0} credit(s)',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+              const SizedBox(width: 4),
+              Text(
+                DiscoPartyApi().currentUser?.name ?? 'Guest',
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              const SizedBox(width: 4),
+              Text(
+                '   |   credits: ${DiscoPartyApi().currentUser?.credits ?? 0}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const Icon(
+                Icons.album,
+                size: 14,
+                color: Colors.white,
               ),
             ],
           ),
