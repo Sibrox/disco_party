@@ -5,7 +5,7 @@ import 'package:disco_party/spotify/models/spotify_info.dart';
 import 'package:flutter/material.dart';
 
 class InteractionVote extends StatefulWidget {
-  final SpotifyInfo currentInfo;
+  final SpotifyInfo? currentInfo;
   const InteractionVote({super.key, required this.currentInfo});
 
   @override
@@ -25,13 +25,20 @@ class _InteractionVoteState extends State<InteractionVote> {
   }
 
   void checkCurrentSongInteraction() async {
+    var currentInfo = widget.currentInfo;
+    if (currentInfo == null) {
+      setState(() {
+        _checking = false;
+      });
+      return;
+    }
+
     bool checking = true;
 
     bool isAlredyVoted = false;
     bool isYourSong = false;
 
-    Song? currentSong =
-        await SongService.instance.getSong(widget.currentInfo.id);
+    Song? currentSong = await SongService.instance.getSong(currentInfo.id);
 
     var currentUser = DiscoPartyApi.instance.currentUser;
     if (currentSong != null && currentUser != null) {
@@ -50,6 +57,11 @@ class _InteractionVoteState extends State<InteractionVote> {
 
   @override
   Widget build(BuildContext context) {
+    var currentInfo = widget.currentInfo;
+    if (currentInfo == null) {
+      return Container();
+    }
+
     if (_checking) {
       return const Center(
         child: CircularProgressIndicator(),
@@ -101,7 +113,7 @@ class _InteractionVoteState extends State<InteractionVote> {
               _checking = true;
             });
 
-            await DiscoPartyApi.instance.voteSong(widget.currentInfo, -1);
+            await DiscoPartyApi.instance.voteSong(currentInfo, -1);
 
             setState(() {
               _isAlredyVoted = true;
@@ -139,7 +151,7 @@ class _InteractionVoteState extends State<InteractionVote> {
               _checking = true;
             });
 
-            await DiscoPartyApi.instance.voteSong(widget.currentInfo, 1);
+            await DiscoPartyApi.instance.voteSong(currentInfo, 1);
 
             setState(() {
               _isAlredyVoted = true;

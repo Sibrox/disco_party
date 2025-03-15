@@ -70,6 +70,10 @@ class _PlayerState extends State<Player> {
 
   // ignore: non_constant_identifier_names
   Widget SongProgress(SpotifyInfo? info) {
+    if (info == null) {
+      return Container();
+    }
+
     String formatDuration(int milliseconds) {
       final int seconds = (milliseconds / 1000).floor();
       final int minutes = (seconds / 60).floor();
@@ -85,7 +89,7 @@ class _PlayerState extends State<Player> {
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              value: _currentInfo!.progressMs / _currentInfo!.durationsMs,
+              value: info.progressMs / info.durationsMs,
               backgroundColor: const Color(0xFFFF80AB).withValues(alpha: 0.2),
               valueColor:
                   const AlwaysStoppedAnimation<Color>(Color(0xFFC51162)),
@@ -97,14 +101,14 @@ class _PlayerState extends State<Player> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                formatDuration(info == null ? 0 : info.progressMs),
+                formatDuration(info.progressMs),
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey[700],
                 ),
               ),
               Text(
-                '-${formatDuration(info == null ? 0 : info.durationsMs - info.progressMs)}',
+                '-${formatDuration(info.durationsMs - info.progressMs)}',
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey[700],
@@ -209,11 +213,9 @@ class _PlayerState extends State<Player> {
           ),
           const SizedBox(height: 16),
           Skeleton.ignore(
-            child: _currentInfo == null
-                ? Container()
-                : InteractionVote(
-                    currentInfo: _currentInfo!,
-                  ),
+            child: InteractionVote(
+              currentInfo: _currentInfo,
+            ),
           )
         ]));
   }

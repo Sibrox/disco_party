@@ -70,7 +70,6 @@ class DiscoPartyApi {
 
       if (song == null) {
         song = Song(info: info, userID: 'dj_gallottino');
-        print(song);
         SongService.instance.addSong(song);
       }
 
