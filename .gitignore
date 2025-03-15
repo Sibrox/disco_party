@@ -49,3 +49,9 @@ backend/token.txt
 backend/refresh.txt
 
 frontend/build/*
+
+frontend/linux/
+frontend/android/
+frontend/ios/
+frontend/windows/
+frontend/macos/
