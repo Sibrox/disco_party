@@ -4,6 +4,7 @@ import 'package:disco_party/spotify/models/spotify_info.dart';
 import 'package:disco_party/spotify/spotify_api.dart';
 import 'package:disco_party/spotify/widgets/interaction_vote.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class Player extends StatefulWidget {
@@ -128,7 +129,11 @@ class _PlayerState extends State<Player> {
 
     return Skeletonizer(
         enabled: showSkeleton,
-        effect: const PulseEffect(duration: Duration(milliseconds: 600)),
+        effect: PulseEffect(
+          duration: const Duration(milliseconds: 2000),
+          from: Colors.white.withAlpha(80),
+          to: const Color(0xFFC51162).withValues(alpha: 0.8),
+        ),
         child: Column(children: [
           Padding(
             padding: const EdgeInsets.all(36),
@@ -147,15 +152,22 @@ class _PlayerState extends State<Player> {
                 )),
           ),
           showSkeleton ? Container() : SongProgress(info),
-          const Text(
-            'STAI ASCOLTANDO',
-            style: TextStyle(
+          Skeleton.keep(
+              child: Text(
+            showSkeleton
+                ? 'MI STO CONNETTENDO A SPOTIFY...'
+                : 'STAI ASCOLTANDO',
+            style: const TextStyle(
               fontSize: 12,
               letterSpacing: 1.2,
               fontWeight: FontWeight.w500,
               color: Color(0xFF9E9E9E),
             ),
-          ),
+          )),
+          showSkeleton
+              ? LoadingAnimationWidget.staggeredDotsWave(
+                  color: const Color(0xFFC51162), size: 30)
+              : Container(),
           const SizedBox(height: 6),
           Text(
             showSkeleton ? '' : info.name,
@@ -168,8 +180,10 @@ class _PlayerState extends State<Player> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
+          showSkeleton ? Container() : const SizedBox(height: 4),
           const SizedBox(height: 4),
-          Row(
+          Skeleton.ignore(
+              child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(
@@ -189,9 +203,10 @@ class _PlayerState extends State<Player> {
                 overflow: TextOverflow.ellipsis,
               ),
             ],
-          ),
+          )),
           const SizedBox(height: 2),
-          Row(
+          Skeleton.ignore(
+              child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(
@@ -210,13 +225,13 @@ class _PlayerState extends State<Player> {
                 overflow: TextOverflow.ellipsis,
               ),
             ],
-          ),
+          )),
           const SizedBox(height: 16),
           Skeleton.ignore(
             child: InteractionVote(
               currentInfo: _currentInfo,
             ),
-          )
+          ),
         ]));
   }
 }
