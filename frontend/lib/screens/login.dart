@@ -2,7 +2,7 @@ import 'dart:html' as html;
 import 'package:disco_party/logics/disco_party_api.dart';
 import 'package:disco_party/logics/string_utils.dart';
 import 'package:disco_party/models/user.dart';
-import 'package:disco_party/screens/dj_home.dart';
+import 'package:disco_party/screens/menu_home.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -124,7 +124,7 @@ class _LoginState extends State<Login> {
     }
 
     if (_userExists) {
-      return const DjHome();
+      return const MenuPage();
     } else {
       return Scaffold(
         body: Container(

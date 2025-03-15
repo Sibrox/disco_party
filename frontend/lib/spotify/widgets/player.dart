@@ -14,27 +14,48 @@ class Player extends StatefulWidget {
   State<Player> createState() => _PlayerState();
 }
 
-class _PlayerState extends State<Player> {
+class _PlayerState extends State<Player> with WidgetsBindingObserver {
   SpotifyInfo? _currentInfo;
   Timer? _progressTimer;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
-    loadCurrentSong();
     super.initState();
+    loadCurrentSong();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
     _progressTimer?.cancel();
+    _refreshTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      loadCurrentSong();
+    }
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      _progressTimer?.cancel();
+      _refreshTimer?.cancel();
+    }
   }
 
   void _startProgressTimer() {
     _progressTimer?.cancel();
 
     _progressTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_currentInfo != null && mounted) {
+      if (!mounted) {
+        timer.cancel(); // Cancel if not mounted
+        return;
+      }
+
+      if (_currentInfo != null) {
         setState(() {
           _currentInfo = _currentInfo!.copyWith(
             progressMs: _currentInfo!.progressMs + 1000,
@@ -50,23 +71,47 @@ class _PlayerState extends State<Player> {
   }
 
   void loadCurrentSong() async {
-    SpotifyInfo? info = await SpotifyApi.player();
+    _refreshTimer?.cancel();
 
-    if (info != null) {
-      _startProgressTimer();
-      Future.delayed(Duration(milliseconds: info.durationsMs - info.progressMs),
-          () {
-        loadCurrentSong();
+    if (!mounted) return;
+
+    try {
+      SpotifyInfo? info = await SpotifyApi.player();
+
+      if (!mounted) return;
+
+      setState(() {
+        _currentInfo = info;
       });
-    } else {
-      Future.delayed(const Duration(seconds: 10), () {
-        loadCurrentSong();
+
+      if (info != null) {
+        _startProgressTimer();
+
+        int delayMs = info.durationsMs - info.progressMs;
+        _refreshTimer = Timer(Duration(milliseconds: delayMs), () {
+          if (mounted) {
+            loadCurrentSong();
+          }
+        });
+      } else {
+        _refreshTimer = Timer(const Duration(seconds: 10), () {
+          if (mounted) {
+            loadCurrentSong();
+          }
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      print("Error loading song: $e");
+
+      // Try again in 10 seconds in case of error
+      _refreshTimer = Timer(const Duration(seconds: 10), () {
+        if (mounted) {
+          loadCurrentSong();
+        }
       });
     }
-
-    setState(() {
-      _currentInfo = info;
-    });
   }
 
   // ignore: non_constant_identifier_names
@@ -136,7 +181,7 @@ class _PlayerState extends State<Player> {
         ),
         child: Column(children: [
           Padding(
-            padding: const EdgeInsets.all(36),
+            padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 18),
             child: Container(
                 decoration: BoxDecoration(boxShadow: [
                   BoxShadow(

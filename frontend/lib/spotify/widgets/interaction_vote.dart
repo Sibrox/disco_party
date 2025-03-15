@@ -18,42 +18,66 @@ class _InteractionVoteState extends State<InteractionVote> {
   bool _isYourSong = false;
 
   bool _checking = true;
+  String? _previousSongId;
 
   @override
-  void didUpdateWidget(covariant InteractionVote oldWidget) {
+  void initState() {
+    super.initState();
+    _previousSongId = widget.currentInfo?.id;
     checkCurrentSongInteraction();
+  }
+
+  @override
+  void didUpdateWidget(InteractionVote oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    final currentId = widget.currentInfo?.id;
+    if (currentId != _previousSongId) {
+      _previousSongId = currentId;
+
+      setState(() {
+        _isAlredyVoted = false;
+        _isYourSong = false;
+        _checking = true;
+      });
+
+      checkCurrentSongInteraction();
+    }
   }
 
   void checkCurrentSongInteraction() async {
-    var currentInfo = widget.currentInfo;
-    if (currentInfo == null) {
-      setState(() {
-        _checking = false;
-      });
+    var songId = _previousSongId;
+    if (songId == null) {
+      if (mounted) {
+        setState(() {
+          _checking = false;
+        });
+      }
       return;
     }
-
-    bool checking = true;
 
     bool isAlredyVoted = false;
     bool isYourSong = false;
 
-    Song? currentSong = await SongService.instance.getSong(currentInfo.id);
+    try {
+      Song? currentSong = await SongService.instance.getSong(songId);
 
-    var currentUser = DiscoPartyApi.instance.currentUser;
-    if (currentSong != null && currentUser != null) {
-      isAlredyVoted = await currentSong.hasUserVoted(currentUser.id);
-      isYourSong = currentSong.userID == currentUser.id;
+      var currentUser = DiscoPartyApi.instance.currentUser;
+      if (currentSong != null && currentUser != null) {
+        isAlredyVoted = await currentSong.hasUserVoted(currentUser.id);
+        isYourSong = currentSong.userID == currentUser.id;
+      }
+    } catch (e) {
+      print("Error checking song interaction: $e");
     }
 
-    checking = false;
-
-    setState(() {
-      _isAlredyVoted = isAlredyVoted;
-      _isYourSong = isYourSong;
-      _checking = checking;
-    });
+    if (mounted) {
+      setState(() {
+        _isAlredyVoted = isAlredyVoted;
+        _isYourSong = isYourSong;
+        _checking = false;
+      });
+    }
   }
 
   @override
@@ -70,116 +94,167 @@ class _InteractionVoteState extends State<InteractionVote> {
     }
 
     if (_isAlredyVoted) {
-      return const Center(
-          child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.check,
-            color: Color(0xFFC51162),
-            size: 24,
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
+          border: BoxBorder.lerp(
+            Border.all(color: const Color(0xFFC51162), width: 1.5),
+            Border.all(color: Colors.white, width: 1.5),
+            0.5,
           ),
-          SizedBox(width: 8),
-          Text(
-            'Hai già votato!',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFFC51162),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(width: 12),
+            Text(
+              'Hai già votato!',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFFC51162),
+              ),
             ),
-          ),
-        ],
-      ));
+            SizedBox(width: 12),
+            Icon(
+              Icons.check_circle,
+              color: Color(0xFFC51162),
+              size: 18,
+            ),
+            SizedBox(width: 12),
+          ],
+        ),
+      );
     }
 
     if (_isYourSong) {
-      return const Center(
-        child: Text(
-          'Questo è un tuo brano!',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-            color: Colors.black,
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
+          border: BoxBorder.lerp(
+            Border.all(color: const Color(0xFFC51162), width: 1.5),
+            Border.all(color: Colors.white, width: 1.5),
+            0.5,
           ),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(width: 12),
+            Text(
+              'Questo è un tuo brano',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFFC51162),
+              ),
+            ),
+            SizedBox(width: 12),
+            Icon(
+              Icons.star,
+              color: Color(0xFFC51162),
+              size: 24,
+            ),
+            SizedBox(width: 12),
+          ],
         ),
       );
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        ElevatedButton.icon(
-          onPressed: () async {
-            setState(() {
-              _checking = true;
-            });
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Dislike button
+          ElevatedButton.icon(
+            onPressed: () async {
+              setState(() {
+                _checking = true;
+              });
 
-            await DiscoPartyApi.instance.voteSong(currentInfo, -1);
+              await DiscoPartyApi.instance.voteSong(currentInfo, -1);
 
-            setState(() {
-              _isAlredyVoted = true;
-              _checking = false;
-            });
-          },
-          icon: const Icon(
-            Icons.thumb_down,
-            color: Color(0xFFC51162),
-            size: 24,
-          ),
-          label: const Text(
-            'Oh no..',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
+              setState(() {
+                _isAlredyVoted = true;
+                _checking = false;
+              });
+            },
+            icon: const Icon(
+              Icons.thumb_down,
               color: Color(0xFFC51162),
+              size: 22,
+            ),
+            label: const Text(
+              'Oh no..',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFFC51162),
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFFC51162),
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+                side: const BorderSide(color: Color(0xFFC51162), width: 1.5),
+              ),
+              shadowColor: Colors.transparent,
             ),
           ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: const Color(0xFFC51162),
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            shape: const RoundedRectangleBorder(
-              side: BorderSide(color: Color(0xFFC51162), width: 1),
-            ),
-            shadowColor: Colors.transparent,
-          ),
-        ),
-        const SizedBox(width: 16),
-        ElevatedButton.icon(
-          onPressed: () async {
-            setState(() {
-              _checking = true;
-            });
 
-            await DiscoPartyApi.instance.voteSong(currentInfo, 1);
+          const SizedBox(width: 16),
 
-            setState(() {
-              _isAlredyVoted = true;
-              _checking = false;
-            });
-          },
-          icon: const Icon(Icons.thumb_up, color: Colors.white, size: 24),
-          label: const Text(
-            'Mi piace!',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
+          // Like button
+          ElevatedButton.icon(
+            onPressed: () async {
+              setState(() {
+                _checking = true;
+              });
+
+              await DiscoPartyApi.instance.voteSong(currentInfo, 1);
+
+              setState(() {
+                _isAlredyVoted = true;
+                _checking = false;
+              });
+            },
+            icon: const Icon(
+              Icons.thumb_up,
               color: Colors.white,
+              size: 22,
             ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFC51162),
-            foregroundColor: Colors.white,
-            elevation: 0,
-            shape: const RoundedRectangleBorder(
-              side: BorderSide(color: Color(0xFFC51162), width: 1),
+            label: const Text(
+              'Mi piace!',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            shadowColor: const Color(0x29C51162),
-          ),
-        )
-      ]),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFC51162),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+                side: const BorderSide(color: Color(0xFFC51162), width: 1.5),
+              ),
+              shadowColor: const Color(0x29C51162),
+            ),
+          )
+        ],
+      ),
     );
   }
 }
