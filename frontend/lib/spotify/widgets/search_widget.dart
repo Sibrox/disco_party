@@ -37,71 +37,249 @@ class _SearchWidgetState extends State<SearchWidget> {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
+      barrierColor: const Color(0xFFC51162).withOpacity(0.3),
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Sei sicur*?'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: messages.map((message) => Text(message)).toList(),
+        return Dialog(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFC51162).withOpacity(0.25),
+                  blurRadius: 15,
+                  spreadRadius: 0,
+                  offset: const Offset(0, 5),
+                ),
+              ],
             ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Non aggiungere'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text('Aggiungi'),
-              onPressed: () async {
-                DiscoPartyApi().addSongToQueue(song);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Row(
-                      children: [
-                        const Icon(Icons.check_circle, color: Colors.white),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Text(
-                                'Canzone aggiunta!',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFC51162),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.music_note,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Text(
+                          'Conferma la tua canzone',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFCE4EC),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child: Image.network(
+                                song.image,
+                                width: 40,
+                                height: 40,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width: 40,
+                                    height: 40,
+                                    color: Colors.grey[200],
+                                    child: const Icon(
+                                      Icons.music_note,
+                                      color: Color(0xFFC51162),
+                                      size: 20,
+                                    ),
+                                  );
+                                },
                               ),
-                              Text(
-                                '"${song.name}" da ${song.artist}',
-                                style: const TextStyle(
-                                  fontSize: 12,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    song.name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    song.artist,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[700],
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      ...messages.map((message) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.info_outline,
+                                size: 16,
+                                color: Color(0xFFC51162),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  message,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    height: 1.3,
+                                  ),
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                    backgroundColor: const Color(0xFFC51162),
-                    duration: const Duration(seconds: 3),
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                        );
+                      }).toList(),
+                    ],
                   ),
-                );
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.grey[700],
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: const Text('Non aggiungere'),
+                      ),
+                      const SizedBox(width: 8),
 
-                _clearSearch();
+                      // Add button
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          DiscoPartyApi().addSongToQueue(song);
 
-                Navigator.of(context).pop();
-              },
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Row(
+                                children: [
+                                  const Icon(Icons.check_circle,
+                                      color: Colors.white),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Text(
+                                          'Canzone aggiunta!',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          '"${song.name}" da ${song.artist}',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: const Color(0xFFC51162),
+                              duration: const Duration(seconds: 3),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          );
+
+                          _clearSearch();
+                          Navigator.of(context).pop();
+                        },
+                        icon: const Icon(
+                          Icons.add_circle,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                        label: const Text('Aggiungi'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFC51162),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 10),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );
@@ -112,8 +290,8 @@ class _SearchWidgetState extends State<SearchWidget> {
     song == null
         ? _confirmDialog(info, [
             'Stai per aggiungere la canzone "${info.name}" di "${info.artist}" alla coda.',
-            'Questo ti costerà un credito',
-            'Sei sicur*?'
+            'Questo ti costerà 5 crediti',
+            'Otterai 1 credito per ogni voto ricevuto durante la riproduzione.',
           ])
         : _confirmDialog(info, [
             'La canzone "${info.name}" di "${info.artist}" è già presente nella coda.',
