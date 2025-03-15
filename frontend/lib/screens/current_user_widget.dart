@@ -40,7 +40,7 @@ class _CurrentUserWidgetState extends State<CurrentUserWidget> {
       width: 100,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
-        mainAxisSize: MainAxisSize.max,
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Column(

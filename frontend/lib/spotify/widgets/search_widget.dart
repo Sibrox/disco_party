@@ -70,12 +70,7 @@ class _SearchWidgetState extends State<SearchWidget> {
   }
 
   void tryToAddSongInQueue(SpotifyInfo info) async {
-    // check if song is already in queue
-    // if not, add it
-    // else show error message
-
     Song? song = await SongService.instance.getSong(info.id);
-    print(song);
     song == null
         ? _confirmDialog(info, [
             'Stai per aggiungere la canzone "${info.name}" di "${info.artist}" alla coda.',

@@ -12,7 +12,6 @@ class SpotifyApi {
     if (response.statusCode == 404) return null;
 
     return SpotifyInfo.fromJson(jsonDecode(response.body));
-    return SpotifyInfo.fromJson(jsonDecode(response.body));
   }
 
   static searchSongByTitle(String query) {

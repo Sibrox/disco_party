@@ -19,6 +19,7 @@ class SpotifyInfo {
     this.durationsMs = 0,
     this.progressMs = 0,
   });
+
   SpotifyInfo copyWith({
     String? name,
     String? artist,
