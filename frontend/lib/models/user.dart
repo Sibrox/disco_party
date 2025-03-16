@@ -3,14 +3,14 @@ import 'package:disco_party/firebase/user_service.dart';
 class User {
   String id;
   String name;
-  int positveVotes;
+  int positiveVotes;
   int negativeVotes;
   int credits;
 
   User({
     required this.id,
     required this.credits,
-    this.positveVotes = 0,
+    this.positiveVotes = 0,
     this.negativeVotes = 0,
     required this.name,
   });
@@ -20,7 +20,7 @@ class User {
       'id': id,
       'credits': credits,
       'name': name,
-      'positveVotes': positveVotes,
+      'positiveVotes': positiveVotes,
       'negativeVotes': negativeVotes,
     };
   }
@@ -29,7 +29,7 @@ class User {
     return User(
       id: json['id'],
       credits: json['credits'],
-      positveVotes: json['positveVotes'],
+      positiveVotes: json['positiveVotes'],
       negativeVotes: json['negativeVotes'],
       name: json['name'],
     );

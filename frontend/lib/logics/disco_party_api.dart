@@ -102,7 +102,7 @@ class DiscoPartyApi {
       final String songPath = 'disco_party/songs/${song.id}/votes/$userID';
 
       if (vote > 0) {
-        updates['${djPath}positveVotes'] = ServerValue.increment(1);
+        updates['${djPath}positiveVotes'] = ServerValue.increment(1);
         updates['${djPath}credits'] = ServerValue.increment(1);
       } else {
         updates['${djPath}negativeVotes'] = ServerValue.increment(1);

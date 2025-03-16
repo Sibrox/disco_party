@@ -103,4 +103,14 @@ class UserService {
       throw Exception('Failed to check if user exists: $e');
     }
   }
+
+  Future<List<User>> getTopUsers(int limit) async {
+    try {
+      List<User> allUsers = await getAllUsers();
+      allUsers.sort((a, b) => b.positiveVotes.compareTo(a.positiveVotes));
+      return allUsers.take(limit).toList();
+    } catch (e) {
+      throw Exception('Failed to get top users: $e');
+    }
+  }
 }
