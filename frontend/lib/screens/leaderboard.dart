@@ -4,6 +4,8 @@ import 'package:disco_party/firebase/song_service.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class LeaderboardScreen extends StatefulWidget {
+  const LeaderboardScreen({super.key});
+
   @override
   State<LeaderboardScreen> createState() => _LeaderboardScreenState();
 }
@@ -79,7 +81,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: primaryColor.withOpacity(0.25),
+                          color: primaryColor.withValues(alpha: 0.25),
                           blurRadius: 8,
                           spreadRadius: 0,
                           offset: const Offset(0, 4),
@@ -92,7 +94,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -188,12 +190,13 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                    color: primaryColor.withOpacity(0.1),
+                                    color: primaryColor.withValues(alpha: 0.1),
                                     width: 1,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: primaryColor.withOpacity(0.1),
+                                      color:
+                                          primaryColor.withValues(alpha: 0.1),
                                       blurRadius: 4,
                                       offset: const Offset(0, 2),
                                     ),
@@ -212,8 +215,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                                       height: 50,
                                       decoration: BoxDecoration(
                                         color: isTopThree
-                                            ? cardColor.withOpacity(0.2)
-                                            : primaryColor.withOpacity(0.1),
+                                            ? cardColor.withValues(alpha: 0.2)
+                                            : primaryColor.withValues(
+                                                alpha: 0.2),
                                         shape: BoxShape.circle,
                                         border: Border.all(
                                           color: isTopThree

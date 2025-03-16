@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class Login extends StatefulWidget {
-  const Login({Key? key}) : super(key: key);
+  const Login({super.key});
 
   @override
   State<Login> createState() => _LoginState();
@@ -141,7 +141,7 @@ class _LoginState extends State<Login> {
           child: SafeArea(
             child: Center(
               child: Card(
-                shadowColor: Color(0xFFC51162),
+                shadowColor: const Color(0xFFC51162),
                 color: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(0),
