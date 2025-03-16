@@ -136,4 +136,28 @@ class SongService {
       throw Exception('Failed to get DJ by song ID: $error');
     }
   }
+
+  Future<List<Song>> getSongLeaderboard() async {
+    try {
+      List<Song> allSongs = await getAllSongs();
+      allSongs = allSongs
+          .where((song) =>
+              song.votes.isNotEmpty &&
+              song.votes.entries
+                  .where((vote) => vote.value > 0)
+                  .toList()
+                  .isNotEmpty)
+          .toList();
+      allSongs.sort((a, b) {
+        int positiveVotesA = a.votes.values.where((vote) => vote > 0).length;
+        int positiveVotesB = b.votes.values.where((vote) => vote > 0).length;
+
+        return positiveVotesB.compareTo(positiveVotesA);
+      });
+
+      return allSongs.take(10).toList();
+    } catch (error) {
+      throw Exception('Failed to get song leaderboard: $error');
+    }
+  }
 }
