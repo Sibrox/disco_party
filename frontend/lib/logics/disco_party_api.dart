@@ -4,6 +4,7 @@ import 'package:disco_party/models/user.dart';
 import 'package:disco_party/models/song.dart';
 import 'package:disco_party/spotify/spotify_api.dart';
 import 'package:disco_party/spotify/models/spotify_info.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class DiscoPartyApi {
   static final DiscoPartyApi instance = DiscoPartyApi._internal();
@@ -61,7 +62,7 @@ class DiscoPartyApi {
     }
   }
 
-  Future<bool> voteSong(SpotifyInfo info, int value) async {
+  Future<bool> voteSong(SpotifyInfo info, int voteValue) async {
     User? currentUser = this.currentUser;
     if (currentUser == null) {
       return false;
@@ -69,32 +70,49 @@ class DiscoPartyApi {
 
     try {
       currentUser = await User.getById(currentUser.id);
-      String? djID = await SongService.instance.getDJBySongID(songID: info.id);
-
-      if (currentUser == null || (currentUser.id == djID)) {
-        return false;
-      }
-
       Song? song = await SongService.instance.getSong(info.id);
 
       if (song == null) {
         song = Song(info: info);
-        SongService.instance.addSong(song);
+        await SongService.instance.addSong(song);
       }
 
-      if (await song.hasUserVoted(currentUser!.id)) {
+      if (currentUser == null || (currentUser.id == song.userID)) {
         return false;
       }
 
-      if (value == 1) {
-        await UserService.instance.addCredits(song.userID, 1);
+      if (await song.hasUserVoted(currentUser.id)) {
+        return false;
       }
-      await SongService.instance.addVote(song.id, currentUser.id, value);
 
+      vote(userID: currentUser.id, song: song, vote: voteValue);
       return true;
     } catch (error) {
       print(error);
       return false;
+    }
+  }
+
+  Future<void> vote(
+      {required String userID, required Song song, required int vote}) async {
+    try {
+      Map<String, dynamic> updates = {};
+
+      final String djPath = 'disco_party/users/${song.userID}/';
+      final String songPath = 'disco_party/songs/${song.id}/votes/$userID';
+
+      if (vote > 0) {
+        updates['${djPath}positveVotes'] = ServerValue.increment(1);
+        updates['${djPath}credits'] = ServerValue.increment(1);
+      } else {
+        updates['${djPath}negativeVotes'] = ServerValue.increment(1);
+      }
+
+      updates[songPath] = vote;
+
+      await FirebaseDatabase.instance.ref().update(updates);
+    } catch (e) {
+      throw Exception('Failed to vote: $e');
     }
   }
 }
