@@ -35,9 +35,6 @@ class UserService {
   }
 
   Future<int> addCredits(String userId, int amount) async {
-    if (amount <= 0) {
-      throw Exception('Amount must be greater than 0');
-    }
     try {
       final DataSnapshot snapshot =
           await _dbRef.child(userId).child('credits').get();

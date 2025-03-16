@@ -183,7 +183,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                             ],
                           ),
                         );
-                      }).toList(),
+                      }),
                     ],
                   ),
                 ),
@@ -233,7 +233,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                                           ),
                                           Text(
                                             'Hai bisogno di 5 crediti per aggiungere questa canzone',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 12,
                                             ),
                                             maxLines: 1,

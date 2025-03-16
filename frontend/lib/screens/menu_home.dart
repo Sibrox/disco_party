@@ -1,11 +1,12 @@
 import 'package:disco_party/screens/current_user_widget.dart';
 import 'package:disco_party/screens/disco_bottom_bar.dart';
+import 'package:disco_party/screens/leaderboard.dart';
 import 'package:disco_party/spotify/widgets/player.dart';
 import 'package:flutter/material.dart'; // Create this page
 import 'package:disco_party/screens/search_page.dart'; // Create this page
 
 class MenuPage extends StatefulWidget {
-  const MenuPage({Key? key}) : super(key: key);
+  const MenuPage({super.key});
 
   @override
   State<MenuPage> createState() => _MenuPageState();
@@ -16,7 +17,7 @@ class _MenuPageState extends State<MenuPage> {
   final PageController _pageController = PageController(initialPage: 1);
 
   final List<Widget> _pages = [
-    Container(),
+    const LeaderboardScreen(),
     const Player(),
     const SearchPage(),
   ];

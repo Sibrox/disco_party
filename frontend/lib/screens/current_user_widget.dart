@@ -40,7 +40,7 @@ class _CurrentUserWidgetState extends State<CurrentUserWidget> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.1),
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           bottomRight: Radius.circular(16),
         ),
       ),
