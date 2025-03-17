@@ -3,18 +3,27 @@ import cors from 'cors';
 import fs from 'fs';
 import querystring from 'querystring';
 import request from 'request';
+import dotenv from 'dotenv';
 
 import { SpotifyApi } from './spotify/spotifyapi.js';
 
-var client_id = '9f5a185ec2ae478c8b24a54ee685680c';
-var client_secret = '01c3fd8034d64eb6bcc3aae7e1588620';
-var redirect_uri = 'http://localhost:8080/callback';
+dotenv.config();
+
+const client_id = process.env.SPOTIFY_CLIENT_ID;
+const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
+const redirect_uri = process.env.SPOTIFY_REDIRECT_URI || 'http://localhost:8080/callback';
+const port = process.env.PORT || 8080;
+
+if (!client_id || !client_secret) {
+  console.error('Error: Missing required environment variables. Please check your .env file.');
+  console.error('Required variables: SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET');
+  process.exit(1);
+}
 
 var app = express();
 app.use(cors());
 
 app.get('/login', function(req, res) {
-
   var state = "state";
   var scope = 'user-read-private user-read-playback-state user-modify-playback-state user-read-currently-playing user-read-email';
 
@@ -22,7 +31,7 @@ app.get('/login', function(req, res) {
     querystring.stringify({
       response_type: 'code',
       client_id: client_id,
-      client_secret,
+      client_secret: client_secret,
       scope: scope,
       redirect_uri: redirect_uri,
       state: state
@@ -33,7 +42,6 @@ app.get('/save_token', function(req, res) {
 
   var token = req.query.access_token;
   var refresh = req.query.refresh_token;
-  console.log(token);
   fs.writeFileSync('token.txt', token, function(err) {
     if (err) {
       return console.log(err);
@@ -78,8 +86,6 @@ app.get('/callback', function(req, res)  {
 
     request
     .post(authOptions,function(error, response, body) {
-      console.log(body.access_token);
-      console.log(response.statusCode);
 
       var access_token = body.access_token;
       var refresh_token = body.refresh_token;
@@ -96,7 +102,7 @@ app.get('/callback', function(req, res)  {
 
 app.get('/player', async function(req, res) {
 
-  const api = new SpotifyApi();
+  const api = new SpotifyApi(client_id, client_secret);
   api.executeWithTokenRefresh(async () => {
     return await api.currentPlayback();
   }).then((song) => {
@@ -110,7 +116,8 @@ app.get('/player', async function(req, res) {
 });
 
 app.get('/search', async function(req, res) {
-  const api = new SpotifyApi();
+  const api = new SpotifyApi(client_id, client_secret
+  );
   api.executeWithTokenRefresh(async () => {
     return await api.searchSong(req.query.q);
   }).then((songs) => {
@@ -132,7 +139,6 @@ app.get('/add_to_queue', async function(req, res) {
   return res.send("OK");
 });
 
-const port = 8080;
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);  

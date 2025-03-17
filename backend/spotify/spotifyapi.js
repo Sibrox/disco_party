@@ -4,9 +4,9 @@ import { Song } from "./song.js";
 
 export class SpotifyApi {
 
-    constructor() {
-        this.client_id = '9f5a185ec2ae478c8b24a54ee685680c';
-        this.client_secret = '01c3fd8034d64eb6bcc3aae7e1588620';
+    constructor(client_id, client_secret) {
+        this.client_id = client_id;
+        this.client_secret = client_secret;
         this.access_token = fs.readFileSync('token.txt', 'utf8').toString();;
         this.refresh_token = fs.readFileSync('refresh.txt', 'utf8').toString();;
     }
