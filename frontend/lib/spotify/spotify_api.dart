@@ -4,7 +4,7 @@ import 'package:disco_party/spotify/models/spotify_info.dart';
 import 'package:http/http.dart' as http;
 
 class SpotifyApi {
-  static const String baseUrl = 'http://localhost:8080';
+  static const String baseUrl = 'http://85.10.133.227:8081';
 
   static Future<SpotifyInfo?> player() async {
     var response = await http.get(Uri.parse('$baseUrl/player'));
