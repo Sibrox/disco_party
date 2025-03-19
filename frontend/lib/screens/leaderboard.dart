@@ -37,6 +37,74 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
     super.dispose();
   }
 
+  fromStringToNum(String num) {
+    Map<String, int> converter = {
+      "zero": 0,
+      "uno": 1,
+      "due": 2,
+      "tre": 3,
+      "quattro": 4,
+      "cinque": 5,
+      "sei": 6,
+      "sette": 7,
+      "otto": 8,
+      "nove": 9,
+      "dieci": 10,
+      "undici": 11,
+      "dodici": 12,
+      "tredici": 13,
+      "quattordici": 14,
+      "quindici": 15,
+      "sedici": 16,
+      "diciassette": 17,
+      "diciotto": 18,
+      "diciannove": 19,
+      "venti": 20,
+      "ventuno": 21,
+      "ventidue": 22,
+      "ventitre": 23,
+      "ventiquattro": 24,
+      "venticinque": 25,
+      "ventisei": 26,
+      "ventisette": 27,
+      "ventotto": 28,
+      "ventinove": 29,
+      "trenta": 30,
+      "trentuno": 31,
+      "trentadue": 32,
+      "trentatre": 33,
+      "trentaquattro": 34,
+      "trentacinque": 35,
+      "trentasei": 36,
+      "trentasette": 37,
+      "trentotto": 38,
+      "trentanove": 39,
+      "quaranta": 40,
+      "quarantuno": 41,
+      "quarantadue": 42,
+      "quarantatre": 43,
+      "quarantaquattro": 44,
+      "quarantacinque": 45,
+      "quarantasei": 46,
+      "quarantasette": 47,
+      "quarantotto": 48,
+      "quarantanove": 49,
+      "cinquanta": 50,
+      "cinquantuno": 51,
+      "cinquantadue": 52,
+      "cinquantatre": 53,
+      "cinquantaquattro": 54,
+      "cinquantacinque": 55,
+      "cinquantasei": 56,
+      "cinquantasette": 57,
+      "cinquantotto": 58,
+      "cinquantanove": 59,
+      "sessanta": 60,
+    };
+
+    return converter.containsKey(num) ? converter[num] : '?';
+  }
+
   Future<void> _loadLeaderboard() async {
     try {
       setState(() {
@@ -307,27 +375,6 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                                   ),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(6),
-                          child: Image.network(
-                            song.info.image,
-                            width: 48,
-                            height: 48,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                width: 48,
-                                height: 48,
-                                color: Colors.grey[200],
-                                child: const Icon(
-                                  Icons.music_note,
-                                  color: Color(0xFFC51162),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
                       ],
                     ),
                     title: Text(
@@ -337,7 +384,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                         color: Colors.black87,
                         fontSize: isTopThree ? 16 : 14,
                       ),
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: Column(
@@ -345,24 +392,13 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                       children: [
                         Text(
                           song.info.artist,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.black54,
-                            fontSize: isTopThree ? 14 : 12,
+                            fontSize: 12,
                           ),
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        if (isTopThree)
-                          Text(
-                            song.info.album,
-                            style: TextStyle(
-                              color: Colors.grey[500],
-                              fontSize: 12,
-                              fontStyle: FontStyle.italic,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
                       ],
                     ),
                     trailing: Container(
@@ -410,7 +446,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
             itemBuilder: (context, index) {
               final userVote = userVotes[index];
 
-              final userName = '${userNames[userVote.key]} (#${userVote.key})';
+              final userName =
+                  '${userNames[userVote.key]} (#${fromStringToNum(userVote.key)})';
 
               final isTopThree = index < 3;
               final cardColor = isTopThree
@@ -482,12 +519,12 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                     ),
                     title: Text(
                       userName,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                        fontSize: isTopThree ? 16 : 14,
+                        color: Colors.black54,
+                        fontSize: 12,
                       ),
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     trailing: Container(
