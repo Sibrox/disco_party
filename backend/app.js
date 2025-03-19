@@ -11,8 +11,10 @@ dotenv.config();
 
 const client_id = process.env.SPOTIFY_CLIENT_ID;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-const redirect_uri = process.env.SPOTIFY_REDIRECT_URI || 'http://localhost:8080/callback';
 const port = process.env.PORT || 8080;
+const server_ip = process.env.SERVER_IP || 'localhost';
+const redirect_uri = process.env.SPOTIFY_REDIRECT_URI || `http://${server_ip}:${port}/callback`;
+
 
 if (!client_id || !client_secret) {
   console.error('Error: Missing required environment variables. Please check your .env file.');
@@ -55,7 +57,7 @@ app.get('/save_token', function(req, res) {
     console.log('Refresh Token saved to refresh.txt');
   });
   
-  return res.json("Login successful. You can class the window");
+  return res.json("Login successful. You can close the window.");
 });
 
 
@@ -90,7 +92,7 @@ app.get('/callback', function(req, res)  {
       var access_token = body.access_token;
       var refresh_token = body.refresh_token;
 
-      res.redirect('/save_token?' +
+      res.redirect(`http://${server_ip}:${port}/save_token?` +
         querystring.stringify({
           access_token: access_token,
           refresh_token: refresh_token
