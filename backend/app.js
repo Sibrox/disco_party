@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 
 import { SpotifyApi } from './spotify/spotifyapi.js';
 
+
 dotenv.config();
 
 const client_id = process.env.SPOTIFY_CLIENT_ID;
@@ -14,7 +15,6 @@ const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
 const port = process.env.PORT || 8080;
 const server_ip = process.env.SERVER_IP || 'localhost';
 const redirect_uri = process.env.SPOTIFY_REDIRECT_URI || `http://${server_ip}:${port}/callback`;
-
 
 if (!client_id || !client_secret) {
   console.error('Error: Missing required environment variables. Please check your .env file.');
@@ -40,29 +40,7 @@ app.get('/login', function(req, res) {
     }));
 });
 
-app.get('/save_token', function(req, res) {
-
-  var token = req.query.access_token;
-  var refresh = req.query.refresh_token;
-  fs.writeFileSync('token.txt', token, function(err) {
-    if (err) {
-      return console.log(err);
-    }
-    console.log('Access Token saved to token.txt');
-  });
-  fs.writeFileSync('refresh.txt', refresh, function(err) {
-    if (err) {
-      return console.log(err);
-    }
-    console.log('Refresh Token saved to refresh.txt');
-  });
-  
-  return res.json("Login successful. You can close the window.");
-});
-
-
-app.get('/callback', function(req, res)  {
-
+app.get('/callback', function(req, res) {
   var code = req.query.code || null;
   var state = req.query.state || null;
 
@@ -81,24 +59,91 @@ app.get('/callback', function(req, res)  {
       },
       headers: {
         'content-type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64'))
+        'Authorization': 'Basic ' + (Buffer.from(client_id + ':' + client_secret).toString('base64'))
       },
       json: true
     };
 
-    request
-    .post(authOptions,function(error, response, body) {
-
+    request.post(authOptions, function(error, response, body) {
+      if (error || response.statusCode !== 200) {
+        console.error('Error getting tokens:', error || body);
+        return res.status(500).send('Authentication failed');
+      }
+      
       var access_token = body.access_token;
       var refresh_token = body.refresh_token;
 
-      res.redirect(`http://${server_ip}:${port}/save_token?` +
-        querystring.stringify({
-          access_token: access_token,
-          refresh_token: refresh_token
-        }));
+      // Write tokens directly here instead of redirecting
+      try {
+        // Write the tokens to files
+        fs.writeFileSync('token.txt', access_token);
+        fs.writeFileSync('refresh.txt', refresh_token);
+        
+        console.log('Access and refresh tokens saved successfully');
+        
+        // Respond with success page
+        res.send(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Authentication Successful</title>
+              <style>
+                body {
+                  font-family: Arial, sans-serif;
+                  text-align: center;
+                  padding: 40px;
+                  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                }
+                .container {
+                  background-color: white;
+                  padding: 30px;
+                  border-radius: 10px;
+                  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                  max-width: 600px;
+                  margin: 0 auto;
+                }
+                h1 {
+                  color: #1DB954;
+                }
+                .success-icon {
+                  font-size: 60px;
+                  margin-bottom: 20px;
+                }
+                .message {
+                  margin: 20px 0;
+                  color: #333;
+                }
+                .close-button {
+                  background-color: #1DB954;
+                  color: white;
+                  border: none;
+                  padding: 10px 20px;
+                  border-radius: 30px;
+                  font-size: 16px;
+                  cursor: pointer;
+                  transition: background-color 0.3s;
+                }
+                .close-button:hover {
+                  background-color: #1AA34A;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="success-icon">✅</div>
+                <h1>Authentication Successful</h1>
+                <p class="message">Your Spotify account has been successfully connected.</p>
+                <p>You can now close this window and return to the application.</p>
+                <button class="close-button" onclick="window.close()">Close Window</button>
+              </div>
+            </body>
+          </html>
+        `);
+      } catch (err) {
+        console.error('Error saving tokens to file:', err);
+        res.status(500).send('Error saving authentication tokens');
+      }
     });
-
   }
 });
 
