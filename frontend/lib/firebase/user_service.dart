@@ -103,4 +103,42 @@ class UserService {
       throw Exception('Failed to check if user exists: $e');
     }
   }
+
+  Future<List<User>> getUsersByIds(List<String> userIds) async {
+    if (userIds.isEmpty) return [];
+
+    try {
+      final List<User> users = [];
+
+      // Create a batch of futures for parallel fetching
+      final futures = userIds.map((id) => _dbRef.child(id).get());
+      final snapshots = await Future.wait(futures);
+
+      for (var i = 0; i < snapshots.length; i++) {
+        final snapshot = snapshots[i];
+        final userId = userIds[i];
+
+        if (snapshot.exists && snapshot.value != null) {
+          final userData = Map<String, dynamic>.from(snapshot.value as Map);
+          users.add(User(
+            id: userId,
+            name: userData['name'] ?? 'Unknown User',
+            credits: (userData['credits'] ?? 0) as int,
+          ));
+        } else {
+          // Add placeholder for missing users
+          users.add(User(
+            id: userId,
+            name: 'User $userId',
+            credits: 0,
+          ));
+        }
+      }
+
+      return users;
+    } catch (e) {
+      print('Error fetching users: $e');
+      return [];
+    }
+  }
 }
