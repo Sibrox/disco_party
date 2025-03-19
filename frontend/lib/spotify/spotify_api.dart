@@ -1,10 +1,15 @@
 import 'dart:convert';
 
 import 'package:disco_party/spotify/models/spotify_info.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class SpotifyApi {
-  static const String baseUrl = 'http://85.10.133.227:8080';
+  static String get baseUrl {
+    final serverIp = dotenv.env['SERVER_IP'] ?? 'localhost';
+    final serverPort = dotenv.env['SERVER_PORT'] ?? '8080';
+    return 'http://$serverIp:$serverPort';
+  }
 
   static Future<SpotifyInfo?> player() async {
     var response = await http.get(Uri.parse('$baseUrl/player'));

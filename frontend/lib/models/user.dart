@@ -36,7 +36,7 @@ class User {
   }
 
   static Future<User> create(
-      {required String id, required String name, int credits = 3}) async {
+      {required String id, required String name, int credits = 15}) async {
     final user = User(id: id, name: name, credits: credits);
     return await UserService.instance.createUser(user);
   }
