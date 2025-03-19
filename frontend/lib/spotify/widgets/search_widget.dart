@@ -33,7 +33,8 @@ class _SearchWidgetState extends State<SearchWidget> {
     });
   }
 
-  Future<void> _confirmDialog(SpotifyInfo song, List<String> messages) async {
+  Future<void> _confirmDialog(
+      Song? song, SpotifyInfo info, List<String> messages) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -112,7 +113,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(6),
                               child: Image.network(
-                                song.image,
+                                info.image,
                                 width: 40,
                                 height: 40,
                                 fit: BoxFit.cover,
@@ -136,7 +137,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    song.name,
+                                    info.name,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
@@ -145,7 +146,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   Text(
-                                    song.artist,
+                                    info.artist,
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Colors.grey[700],
@@ -211,7 +212,8 @@ class _SearchWidgetState extends State<SearchWidget> {
                       // Add button
                       ElevatedButton.icon(
                         onPressed: () async {
-                          if (DiscoPartyApi.instance.currentUser!.credits < 5) {
+                          if (DiscoPartyApi.instance.currentUser!.credits < 5 &&
+                              song == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: const Row(
@@ -256,7 +258,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                             return;
                           }
 
-                          DiscoPartyApi().addSongToQueue(song);
+                          DiscoPartyApi().addSongToQueue(info);
 
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -278,7 +280,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                                           ),
                                         ),
                                         Text(
-                                          '"${song.name}" da ${song.artist}',
+                                          '"${info.name}" da ${info.artist}',
                                           style: const TextStyle(
                                             fontSize: 12,
                                           ),
@@ -333,12 +335,12 @@ class _SearchWidgetState extends State<SearchWidget> {
   void tryToAddSongInQueue(SpotifyInfo info) async {
     Song? song = await SongService.instance.getSong(info.id);
     song == null
-        ? _confirmDialog(info, [
+        ? _confirmDialog(song, info, [
             'Stai per aggiungere la canzone "${info.name}" di "${info.artist}" alla coda.',
             'Questo ti costerà 5 crediti',
             'Otterai 1 credito per ogni voto ricevuto durante la riproduzione.',
           ])
-        : _confirmDialog(info, [
+        : _confirmDialog(song, info, [
             'La canzone "${info.name}" di "${info.artist}" è già presente nella coda.',
             'Puoi aggiungerla gratuitamente, ma il primo DJ ad averla inserita riceverà i voti al posto tuo.'
           ]);

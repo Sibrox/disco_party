@@ -31,6 +31,12 @@ class DiscoPartyApi {
   }
 
   Future<bool> addSongToQueue(SpotifyInfo spotifySong) async {
+    Song? songInQueue = await SongService.instance.getSong(spotifySong.id);
+    if (songInQueue != null) {
+      await SpotifyApi.addSongToQueue(spotifySong.uri);
+      return true;
+    }
+
     User? currentUser = this.currentUser;
     if (currentUser == null) {
       return false;
