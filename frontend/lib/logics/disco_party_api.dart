@@ -106,9 +106,10 @@ class DiscoPartyApi {
   Future<void> vote(
       {required String userID, required Song song, required int vote}) async {
     try {
-      await FirebaseDatabase.instance
-          .ref()
-          .update({'disco_party/songs/${song.id}/votes/$userID': vote});
+      await FirebaseDatabase.instance.ref().update({
+        'disco_party/songs/${song.id}/votes/$userID': vote,
+        'disco_party/users/${song.userID}/credits': ServerValue.increment(1),
+      });
     } catch (e) {
       throw Exception('Failed to vote: $e');
     }
