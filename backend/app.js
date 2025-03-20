@@ -186,6 +186,11 @@ app.get('/add_to_queue', async function(req, res) {
   return res.send("OK");
 });
 
+app.get('/skip', async function(req, res) {
+  await new SpotifyApi().skipSong();
+  return res.send("OK");
+});
+
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);  

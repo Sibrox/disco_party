@@ -213,4 +213,47 @@ export class SpotifyApi {
             return false;
         }
     }
+
+    async skipSong() {
+        const apiCall = () => {
+            return new Promise((resolve, reject) => {
+                request({
+                    url: `https://api.spotify.com/v1/me/player/next`,
+                    method: 'POST',
+                    headers: {
+                    'Authorization': 'Bearer ' + this.access_token
+                    },
+                    json: true,
+                }, (error, response, body) => {
+                    if (error) {
+                    console.error("Error skipping song:", error);
+                    return reject(error);
+                    }
+                    
+                    if (response.statusCode === 401) {
+                    const unauthorizedError = new Error('Unauthorized');
+                    unauthorizedError.statusCode = 401;
+                    return reject(unauthorizedError);
+                    }
+                    
+                    if (response.statusCode === 404) {
+                    return reject(new Error('No active device found'));
+                    }
+                    
+                    if (response.statusCode !== 200) {
+                    return reject(new Error(`HTTP error! Status: ${response.statusCode}`));
+                    }
+                    
+                    resolve(true);
+                });
+            });
+        };
+        
+        try {
+            return await this.executeWithTokenRefresh(apiCall);
+        } catch (err) {
+            console.error("Failed after token refresh attempt:", err);
+            return false;
+        }
+    }
 }
