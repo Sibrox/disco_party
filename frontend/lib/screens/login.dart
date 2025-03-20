@@ -157,14 +157,16 @@ class _LoginState extends State<Login> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
-                            Icons.music_note,
-                            size: 80,
-                            color: Color(0xFFC51162),
+                          Container(
+                            height: 120,
+                            width: 120,
+                            child: Image.asset(
+                              'assets/icon-512.png',
+                            ),
                           ),
                           const SizedBox(height: 24),
                           const Text(
-                            'Hai voglia di DISCO PARTY?',
+                            '80 voglia.. DISCO PARTY!',
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -172,7 +174,7 @@ class _LoginState extends State<Login> {
                           ),
                           const SizedBox(height: 10),
                           const Text(
-                            'Dimostra il tuo talento!',
+                            'Scegli il tuo nome da DJ',
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey,
