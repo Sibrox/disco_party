@@ -35,4 +35,14 @@ class SpotifyApi {
       throw Exception('Failed to add song to queue');
     }
   }
+
+  Future<bool> skipSong() {
+    var url = '$baseUrl/skip';
+    return http.get(Uri.parse(url)).then((response) {
+      if (response.statusCode != 200) {
+        throw Exception('Failed to skip song');
+      }
+      return true;
+    });
+  }
 }

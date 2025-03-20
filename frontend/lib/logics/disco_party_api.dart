@@ -91,6 +91,10 @@ class DiscoPartyApi {
         return false;
       }
 
+      final negVotes = song.votes.values.where((vote) => vote < 0).length;
+      // final numberOfUsers = (await UserService.instance.getAllUsers()).length;
+      if (negVotes >= 10) await SpotifyApi().skipSong();
+
       vote(userID: currentUser.id, song: song, vote: voteValue);
       return true;
     } catch (error) {
@@ -102,21 +106,9 @@ class DiscoPartyApi {
   Future<void> vote(
       {required String userID, required Song song, required int vote}) async {
     try {
-      Map<String, dynamic> updates = {};
-
-      final String djPath = 'disco_party/users/${song.userID}/';
-      final String songPath = 'disco_party/songs/${song.id}/votes/$userID';
-
-      if (vote > 0) {
-        updates['${djPath}positveVotes'] = ServerValue.increment(1);
-        updates['${djPath}credits'] = ServerValue.increment(1);
-      } else {
-        updates['${djPath}negativeVotes'] = ServerValue.increment(1);
-      }
-
-      updates[songPath] = vote;
-
-      await FirebaseDatabase.instance.ref().update(updates);
+      await FirebaseDatabase.instance
+          .ref()
+          .update({'disco_party/songs/${song.id}/votes/$userID': vote});
     } catch (e) {
       throw Exception('Failed to vote: $e');
     }
